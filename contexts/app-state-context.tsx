@@ -10,21 +10,12 @@ import {
   getWorkOrdersForUser,
   getClientsForUser,
   getClients,
+  type Project,
+  type Quote,
+  type WorkOrder,
 } from "@/lib/firebase-services"
 
 // Types
-interface Project {
-  id: string
-  title: string
-  description: string
-  status: "active" | "pending" | "completed" | "on-hold"
-  budget?: number
-  clientId?: string
-  contractorId?: string
-  startDate?: string
-  endDate?: string
-  progress?: number
-}
 
 interface Client {
   id: string
@@ -37,15 +28,6 @@ interface Client {
   projectsCount?: number
 }
 
-interface Quote {
-  id: string
-  projectId: string
-  contractorId: string
-  amount: number
-  status: "pending" | "accepted" | "rejected"
-  submittedAt: string
-  description?: string
-}
 
 interface Contract {
   id: string
@@ -71,16 +53,6 @@ interface Contract {
   startDate?: any
 }
 
-interface WorkOrder {
-  id: string
-  title: string
-  description: string
-  clientId: string
-  status: "open" | "quoted" | "in-progress" | "completed"
-  budget?: string
-  location?: string
-  postedAt: string
-}
 
 interface AppState {
   projects: Project[]
