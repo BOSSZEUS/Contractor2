@@ -109,14 +109,6 @@ export function LicenseForm({ userProfile, onSuccess }: LicenseFormProps) {
       setExistingFileUrl(
         profile.contractorProfile?.licenseFileUrl || profile.licenseFileUrl || null,
       )
-
-      setFormData({
-        licenseNumber: (userProfile as any).contractorProfile?.licenseNumber || userProfile.licenseNumber || "",
-        licenseType: (userProfile as any).contractorProfile?.licenseType || userProfile.licenseType || "",
-        state: (userProfile as any).contractorProfile?.state || userProfile.licenseState || "",
-      })
-      setExistingFileUrl((userProfile as any).contractorProfile?.licenseFileUrl || userProfile.licenseFileUrl || null)
-
     }
   }, [userProfile])
 
