@@ -197,200 +197,18 @@ export const firestoreService = {
   },
 }
 
-// Mock data for v0 preview
-const mockUserProfile: UserProfile = {
-  uid: "mock-user-id",
-  firstName: "John",
-  lastName: "Doe",
-  email: "demo@example.com",
-  role: "contractor",
-  canActAsClient: true,
-  verified: true,
-  contractorProfile: {
-    licenseNumber: "C-12345",
-    licenseType: "General Contractor",
-    licenseFileUrl: "",
-    state: "CA",
-    verified: true,
-  },
-  createdAt: new Date(),
-}
-
-const mockProjects: Project[] = [
-  {
-    id: "proj-1",
-    title: "Kitchen Renovation",
-    description: "Complete kitchen remodel including cabinets, countertops, and appliances",
-    status: "active",
-    budget: 25000,
-    clientId: "client-1",
-    contractorId: "mock-user-id",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "proj-2",
-    title: "Bathroom Upgrade",
-    description: "Master bathroom renovation with new fixtures and tile work",
-    status: "pending",
-    budget: 15000,
-    clientId: "client-2",
-    contractorId: "mock-user-id",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "proj-3",
-    title: "Deck Construction",
-    description: "Build new outdoor deck with composite materials",
-    status: "completed",
-    budget: 8000,
-    clientId: "client-1",
-    contractorId: "mock-user-id",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-]
-
-const mockQuotes: Quote[] = [
-  {
-    id: "quote-1",
-    projectId: "proj-1",
-    contractorId: "mock-user-id",
-    clientId: "client-1",
-    amount: 25000,
-    description: "Complete kitchen renovation including materials and labor",
-    status: "accepted",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "quote-2",
-    projectId: "proj-2",
-    contractorId: "mock-user-id",
-    clientId: "client-2",
-    amount: 15000,
-    description: "Bathroom renovation with premium fixtures",
-    status: "pending",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-]
-
-const mockContracts: Contract[] = [
-  {
-    id: "contract-1",
-    title: "Kitchen Renovation Contract",
-    projectId: "proj-1",
-    clientId: "client-1",
-    contractorId: "mock-user-id",
-    client: "Alice Johnson",
-    clientName: "Alice Johnson",
-    project: "Kitchen Renovation",
-    projectName: "Kitchen Renovation",
-    amount: 25000,
-    value: 25000,
-    status: "signed",
-    terms: "Standard construction contract with 30-day completion timeline",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    signedDate: new Date("2024-01-10"),
-    startDate: new Date("2024-01-15"),
-  },
-  {
-    id: "contract-2",
-    title: "Bathroom Upgrade Contract",
-    projectId: "proj-2",
-    clientId: "client-2",
-    contractorId: "mock-user-id",
-    client: "Bob Smith",
-    clientName: "Bob Smith",
-    project: "Bathroom Upgrade",
-    projectName: "Bathroom Upgrade",
-    amount: 15000,
-    value: 15000,
-    status: "active",
-    terms: "Bathroom renovation contract with premium fixtures",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    signedDate: new Date("2024-02-01"),
-    startDate: new Date("2024-02-05"),
-  },
-  {
-    id: "contract-3",
-    title: "Deck Construction Contract",
-    projectId: "proj-3",
-    clientId: "client-1",
-    contractorId: "mock-user-id",
-    client: "Alice Johnson",
-    clientName: "Alice Johnson",
-    project: "Deck Construction",
-    projectName: "Deck Construction",
-    amount: 8000,
-    value: 8000,
-    status: "completed",
-    terms: "Outdoor deck construction with composite materials",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    signedDate: new Date("2024-03-01"),
-    startDate: new Date("2024-03-05"),
-  },
-]
-
-const mockClients: Client[] = [
-  {
-    id: "client-1",
-    name: "Alice Johnson",
-    email: "alice@example.com",
-    company: "Johnson Enterprises",
-    phone: "(555) 123-4567",
-    address: "123 Main St, Anytown, CA 90210",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "client-2",
-    name: "Bob Smith",
-    email: "bob@example.com",
-    phone: "(555) 987-6543",
-    address: "456 Oak Ave, Somewhere, CA 90211",
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-]
-
-const mockWorkOrders: WorkOrder[] = [
-  {
-    id: "wo-1",
-    title: "Plumbing Repair",
-    description: "Fix leaky pipes in basement",
-    clientId: "client-1",
-    status: "pending",
-    budget: 500,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-  {
-    id: "wo-2",
-    title: "Electrical Work",
-    description: "Install new outlets in garage",
-    clientId: "client-2",
-    status: "in_progress",
-    budget: 800,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  },
-]
-
-const mockPayments: any[] = [
-  // Mock payment data here
-]
-
 // Project Services
 export async function getProjects(userId?: string): Promise<Project[]> {
+  if (!db) return []
   try {
-    // In v0 preview, return mock data
-    return mockProjects
+    if (userId) {
+      const q1 = query(collection(db, "projects"), where("contractorId", "==", userId))
+      const q2 = query(collection(db, "projects"), where("clientId", "==", userId))
+      const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)])
+      return [...snap1.docs, ...snap2.docs].map((d) => ({ id: d.id, ...d.data() })) as Project[]
+    }
+    const snapshot = await getDocs(collection(db, "projects"))
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as Project[]
   } catch (error) {
     console.error("Error fetching projects:", error)
     return []
@@ -398,9 +216,11 @@ export async function getProjects(userId?: string): Promise<Project[]> {
 }
 
 export async function getProjectsForContractor(contractorId: string): Promise<Project[]> {
+  if (!db) return []
   try {
-    // In v0 preview, return mock data filtered by contractor
-    return mockProjects.filter((project) => project.contractorId === contractorId)
+    const q = query(collection(db, "projects"), where("contractorId", "==", contractorId))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as Project[]
   } catch (error) {
     console.error("Error fetching contractor projects:", error)
     return []
@@ -408,9 +228,10 @@ export async function getProjectsForContractor(contractorId: string): Promise<Pr
 }
 
 export async function getProject(projectId: string): Promise<Project | null> {
+  if (!db) return null
   try {
-    // In v0 preview, return mock data
-    return mockProjects.find((project) => project.id === projectId) || null
+    const snap = await getDoc(doc(db, "projects", projectId))
+    return snap.exists() ? ({ id: snap.id, ...snap.data() } as Project) : null
   } catch (error) {
     console.error("Error fetching project:", error)
     return null
@@ -418,13 +239,8 @@ export async function getProject(projectId: string): Promise<Project | null> {
 }
 
 export async function createProject(projectData: any): Promise<string> {
+  if (!db) throw new Error("Firestore not initialized")
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      const newId = `proj_${Date.now()}`
-      console.log("Created project:", newId, projectData)
-      return newId
-    }
-
     const docRef = await addDoc(collection(db, "projects"), {
       ...projectData,
       createdAt: serverTimestamp(),
@@ -438,12 +254,8 @@ export async function createProject(projectData: any): Promise<string> {
 }
 
 export async function updateProject(projectId: string, updates: any): Promise<void> {
+  if (!db) throw new Error("Firestore not initialized")
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      console.log("Updated project:", projectId, updates)
-      return
-    }
-
     await updateDoc(doc(db, "projects", projectId), {
       ...updates,
       updatedAt: serverTimestamp(),
@@ -455,12 +267,8 @@ export async function updateProject(projectId: string, updates: any): Promise<vo
 }
 
 export async function deleteProject(projectId: string): Promise<void> {
+  if (!db) throw new Error("Firestore not initialized")
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      console.log("Deleted project:", projectId)
-      return
-    }
-
     await deleteDoc(doc(db, "projects", projectId))
   } catch (error) {
     console.error("Error deleting project:", error)
@@ -470,19 +278,15 @@ export async function deleteProject(projectId: string): Promise<void> {
 
 // Client Services
 export async function getClients(userId?: string): Promise<Client[]> {
+  if (!db) return []
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockClients
-    }
-
     if (userId) {
       const q = query(collection(db, "clients"), where("contractorId", "==", userId))
       const snapshot = await getDocs(q)
-      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Client)
+      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as Client[]
     }
-
     const snapshot = await getDocs(collection(db, "clients"))
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Client)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as Client[]
   } catch (error) {
     console.error("Error fetching clients:", error)
     return []
@@ -490,14 +294,11 @@ export async function getClients(userId?: string): Promise<Client[]> {
 }
 
 export async function getClientsForContractor(contractorId: string): Promise<Client[]> {
+  if (!db) return []
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockClients
-    }
-
     const q = query(collection(db, "clients"), where("contractorId", "==", contractorId))
     const snapshot = await getDocs(q)
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Client)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as Client[]
   } catch (error) {
     console.error("Error fetching clients for contractor:", error)
     return []
@@ -505,11 +306,8 @@ export async function getClientsForContractor(contractorId: string): Promise<Cli
 }
 
 export async function getClient(clientId: string): Promise<Client | null> {
+  if (!db) return null
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockClients.find((client) => client.id === clientId) || null
-    }
-
     const docSnap = await getDoc(doc(db, "clients", clientId))
     return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as Client) : null
   } catch (error) {
@@ -519,13 +317,8 @@ export async function getClient(clientId: string): Promise<Client | null> {
 }
 
 export async function createClient(clientData: any): Promise<string> {
+  if (!db) throw new Error("Firestore not initialized")
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      const newId = `client_${Date.now()}`
-      console.log("Created client:", newId, clientData)
-      return newId
-    }
-
     const docRef = await addDoc(collection(db, "clients"), {
       ...clientData,
       createdAt: serverTimestamp(),
@@ -540,20 +333,16 @@ export async function createClient(clientData: any): Promise<string> {
 
 // Contract Services
 export async function getContracts(userId?: string): Promise<Contract[]> {
+  if (!db) return []
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockContracts
-    }
-
     if (userId) {
       const q1 = query(collection(db, "contracts"), where("contractorId", "==", userId))
       const q2 = query(collection(db, "contracts"), where("clientId", "==", userId))
       const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)])
-      return [...snap1.docs, ...snap2.docs].map((d) => ({ id: d.id, ...d.data() }) as Contract)
+      return [...snap1.docs, ...snap2.docs].map((d) => ({ id: d.id, ...d.data() })) as Contract[]
     }
-
     const snapshot = await getDocs(collection(db, "contracts"))
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Contract)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as Contract[]
   } catch (error) {
     console.error("Error fetching contracts:", error)
     return []
@@ -561,11 +350,8 @@ export async function getContracts(userId?: string): Promise<Contract[]> {
 }
 
 export async function getContract(contractId: string): Promise<Contract | null> {
+  if (!db) return null
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockContracts.find((contract) => contract.id === contractId) || null
-    }
-
     const docSnap = await getDoc(doc(db, "contracts", contractId))
     return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as Contract) : null
   } catch (error) {
@@ -576,17 +362,13 @@ export async function getContract(contractId: string): Promise<Contract | null> 
 
 // Payment Services
 export async function getPayments(userId?: string): Promise<any[]> {
+  if (!db) return []
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockPayments
-    }
-
     if (userId) {
       const q = query(collection(db, "payments"), where("userId", "==", userId))
       const snapshot = await getDocs(q)
       return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
     }
-
     const snapshot = await getDocs(collection(db, "payments"))
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
   } catch (error) {
@@ -596,11 +378,8 @@ export async function getPayments(userId?: string): Promise<any[]> {
 }
 
 export async function getPaymentsForContractor(contractorId: string): Promise<any[]> {
+  if (!db) return []
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockPayments
-    }
-
     const q = query(collection(db, "payments"), where("contractorId", "==", contractorId))
     const snapshot = await getDocs(q)
     return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
@@ -611,13 +390,8 @@ export async function getPaymentsForContractor(contractorId: string): Promise<an
 }
 
 export async function createPayment(paymentData: any): Promise<string> {
+  if (!db) throw new Error("Firestore not initialized")
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      const newId = `payment_${Date.now()}`
-      console.log("Created payment:", newId, paymentData)
-      return newId
-    }
-
     const docRef = await addDoc(collection(db, "payments"), {
       ...paymentData,
       createdAt: serverTimestamp(),
@@ -632,19 +406,15 @@ export async function createPayment(paymentData: any): Promise<string> {
 
 // Work Order Services
 export async function getWorkOrders(userId?: string): Promise<WorkOrder[]> {
+  if (!db) return []
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockWorkOrders
-    }
-
     if (userId) {
       const q = query(collection(db, "workOrders"), where("clientId", "==", userId))
       const snapshot = await getDocs(q)
-      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as WorkOrder)
+      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as WorkOrder[]
     }
-
     const snapshot = await getDocs(collection(db, "workOrders"))
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as WorkOrder)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as WorkOrder[]
   } catch (error) {
     console.error("Error fetching work orders:", error)
     return []
@@ -652,14 +422,11 @@ export async function getWorkOrders(userId?: string): Promise<WorkOrder[]> {
 }
 
 export async function getWorkOrdersForContractor(contractorId: string): Promise<WorkOrder[]> {
+  if (!db) return []
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockWorkOrders
-    }
-
     const q = query(collection(db, "workOrders"), where("contractorId", "==", contractorId))
     const snapshot = await getDocs(q)
-    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as WorkOrder)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() })) as WorkOrder[]
   } catch (error) {
     console.error("Error fetching contractor work orders:", error)
     return []
@@ -667,11 +434,8 @@ export async function getWorkOrdersForContractor(contractorId: string): Promise<
 }
 
 export async function getWorkOrder(workOrderId: string): Promise<WorkOrder | null> {
+  if (!db) return null
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockWorkOrders.find((wo) => wo.id === workOrderId) || null
-    }
-
     const docSnap = await getDoc(doc(db, "workOrders", workOrderId))
     return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as WorkOrder) : null
   } catch (error) {
@@ -681,13 +445,8 @@ export async function getWorkOrder(workOrderId: string): Promise<WorkOrder | nul
 }
 
 export async function createWorkOrder(workOrderData: any): Promise<string> {
+  if (!db) throw new Error("Firestore not initialized")
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      const newId = `wo_${Date.now()}`
-      console.log("Created work order:", newId, workOrderData)
-      return newId
-    }
-
     const docRef = await addDoc(collection(db, "workOrders"), {
       ...workOrderData,
       createdAt: serverTimestamp(),
@@ -702,12 +461,8 @@ export async function createWorkOrder(workOrderData: any): Promise<string> {
 
 // User Services
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
+  if (!db) return null
   try {
-    // For v0 preview, return mock data
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockUserProfile
-    }
-
     const userDoc = await getDoc(doc(db, "users", uid))
     if (userDoc.exists()) {
       return userDoc.data() as UserProfile
@@ -715,14 +470,14 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
     return null
   } catch (error) {
     console.error("Error fetching user profile:", error)
-    return mockUserProfile // Fallback to mock data
+    return null
   }
 }
 
 export async function updateUserProfile(userId: string, updates: any): Promise<void> {
+  if (!db) throw new Error("Firestore not initialized")
   try {
-    // In v0 preview, simulate update
-    console.log("Updated user profile:", userId, updates)
+    await updateDoc(doc(db, "users", userId), { ...updates, updatedAt: serverTimestamp() })
   } catch (error) {
     console.error("Error updating user profile:", error)
     throw error
@@ -731,26 +486,12 @@ export async function updateUserProfile(userId: string, updates: any): Promise<v
 
 // Document Services
 export async function getDocuments(userId?: string): Promise<any[]> {
+  if (!db) return []
   try {
-    // In v0 preview, return mock documents
-    return [
-      {
-        id: "doc_001",
-        name: "Kitchen Contract.pdf",
-        type: "contract",
-        size: "2.4 MB",
-        uploadDate: "2024-01-10",
-        projectId: "proj-1",
-      },
-      {
-        id: "doc_002",
-        name: "Bathroom Plans.pdf",
-        type: "plans",
-        size: "5.1 MB",
-        uploadDate: "2024-01-25",
-        projectId: "proj-2",
-      },
-    ]
+    const docsRef = collection(db, "documents")
+    const q = userId ? query(docsRef, where("userId", "==", userId)) : docsRef
+    const snap = await getDocs(q)
+    return snap.docs.map((d) => ({ id: d.id, ...d.data() }))
   } catch (error) {
     console.error("Error fetching documents:", error)
     return []
@@ -758,12 +499,8 @@ export async function getDocuments(userId?: string): Promise<any[]> {
 }
 
 export async function getProjectsForUser(uid: string, role: string): Promise<Project[]> {
+  if (!db) return []
   try {
-    // For v0 preview, return mock data
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockProjects
-    }
-
     const projectsRef = collection(db, "projects")
     const q =
       role === "contractor"
@@ -771,20 +508,16 @@ export async function getProjectsForUser(uid: string, role: string): Promise<Pro
         : query(projectsRef, where("clientId", "==", uid))
 
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Project)
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Project[]
   } catch (error) {
     console.error("Error fetching projects:", error)
-    return mockProjects // Fallback to mock data
+    return []
   }
 }
 
 export async function getQuotesForUser(uid: string, role: string): Promise<Quote[]> {
+  if (!db) return []
   try {
-    // For v0 preview, return mock data
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockQuotes
-    }
-
     const quotesRef = collection(db, "quotes")
     const q =
       role === "contractor"
@@ -792,20 +525,16 @@ export async function getQuotesForUser(uid: string, role: string): Promise<Quote
         : query(quotesRef, where("clientId", "==", uid))
 
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Quote)
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Quote[]
   } catch (error) {
     console.error("Error fetching quotes:", error)
-    return mockQuotes // Fallback to mock data
+    return []
   }
 }
 
 export async function getContractsForUser(uid: string, role: string): Promise<Contract[]> {
+  if (!db) return []
   try {
-    // For v0 preview, return mock data
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockContracts
-    }
-
     const contractsRef = collection(db, "contracts")
     const q =
       role === "contractor"
@@ -813,38 +542,30 @@ export async function getContractsForUser(uid: string, role: string): Promise<Co
         : query(contractsRef, where("clientId", "==", uid))
 
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Contract)
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Contract[]
   } catch (error) {
     console.error("Error fetching contracts:", error)
-    return mockContracts // Fallback to mock data
+    return []
   }
 }
 
 export async function getClientsForUser(uid: string): Promise<Client[]> {
+  if (!db) return []
   try {
-    // For v0 preview, return mock data
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockClients
-    }
-
     const clientsRef = collection(db, "clients")
     const q = query(clientsRef, where("contractorId", "==", uid))
 
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as Client)
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as Client[]
   } catch (error) {
     console.error("Error fetching clients:", error)
-    return mockClients // Fallback to mock data
+    return []
   }
 }
 
 export async function getWorkOrdersForUser(uid: string, role: string): Promise<WorkOrder[]> {
+  if (!db) return []
   try {
-    // For v0 preview, return mock data
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockWorkOrders
-    }
-
     const workOrdersRef = collection(db, "workOrders")
     const q =
       role === "contractor"
@@ -852,20 +573,17 @@ export async function getWorkOrdersForUser(uid: string, role: string): Promise<W
         : query(workOrdersRef, where("clientId", "==", uid))
 
     const querySnapshot = await getDocs(q)
-    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as WorkOrder)
+    return querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as WorkOrder[]
   } catch (error) {
     console.error("Error fetching work orders:", error)
-    return mockWorkOrders // Fallback to mock data
+    return []
   }
 }
 
 // Additional helper functions that might be needed
 export async function getProjectById(projectId: string): Promise<Project | null> {
+  if (!db) return null
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockProjects.find((p) => p.id === projectId) || null
-    }
-
     const projectDoc = await getDoc(doc(db, "projects", projectId))
     if (projectDoc.exists()) {
       return { id: projectDoc.id, ...projectDoc.data() } as Project
@@ -878,11 +596,8 @@ export async function getProjectById(projectId: string): Promise<Project | null>
 }
 
 export async function getQuoteById(quoteId: string): Promise<Quote | null> {
+  if (!db) return null
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockQuotes.find((q) => q.id === quoteId) || null
-    }
-
     const quoteDoc = await getDoc(doc(db, "quotes", quoteId))
     if (quoteDoc.exists()) {
       return { id: quoteDoc.id, ...quoteDoc.data() } as Quote
@@ -895,11 +610,8 @@ export async function getQuoteById(quoteId: string): Promise<Quote | null> {
 }
 
 export async function getContractById(contractId: string): Promise<Contract | null> {
+  if (!db) return null
   try {
-    if (process.env.NODE_ENV === "development" || !db) {
-      return mockContracts.find((c) => c.id === contractId) || null
-    }
-
     const contractDoc = await getDoc(doc(db, "contracts", contractId))
     if (contractDoc.exists()) {
       return { id: contractDoc.id, ...contractDoc.data() } as Contract
@@ -925,8 +637,6 @@ export async function getQuote(_id: string): Promise<any> {
 }
 
 export async function updateQuoteStatus(quoteId: string, status: string): Promise<void> {
-  const mock = mockQuotes.find((q) => q.id === quoteId)
-  if (mock) mock.status = status as any
   if (!db) return
   try {
     await updateDoc(doc(db, "quotes", quoteId), { status })
@@ -947,7 +657,6 @@ export async function createProjectFromQuote(quote: Quote): Promise<string> {
     createdAt: new Date(),
     updatedAt: new Date(),
   }
-  mockProjects.push(projectData)
   if (!db) return newId
   try {
     await setDoc(doc(db, "projects", newId), projectData)

@@ -3,6 +3,14 @@
 import type React from "react"
 import { createContext, useContext, useReducer, useEffect } from "react"
 import { useAuth } from "./auth-context"
+import {
+  getProjectsForUser,
+  getQuotesForUser,
+  getContractsForUser,
+  getWorkOrdersForUser,
+  getClientsForUser,
+  getClients,
+} from "@/lib/firebase-services"
 
 // Types
 interface Project {
@@ -110,174 +118,6 @@ const initialState: AppState = {
   dataLoaded: false,
 }
 
-// Mock data
-const mockClientData = {
-  projects: [
-    {
-      id: "proj-1",
-      title: "Kitchen Renovation",
-      description: "Complete kitchen remodel with new cabinets and appliances",
-      status: "active" as const,
-      budget: 25000,
-      progress: 65,
-    },
-    {
-      id: "proj-2",
-      title: "Bathroom Remodel",
-      description: "Master bathroom renovation",
-      status: "completed" as const,
-      budget: 15000,
-      progress: 100,
-    },
-  ],
-  quotes: [
-    {
-      id: "quote-1",
-      projectId: "proj-1",
-      contractorId: "contractor-1",
-      amount: 25000,
-      status: "accepted" as const,
-      submittedAt: "2024-01-15",
-    },
-    {
-      id: "quote-2",
-      projectId: "proj-3",
-      contractorId: "contractor-2",
-      amount: 8000,
-      status: "pending" as const,
-      submittedAt: "2024-01-20",
-    },
-  ],
-  contracts: [
-    {
-      id: "contract-1",
-      projectId: "proj-1",
-      clientId: "client-1",
-      contractorId: "contractor-1",
-      amount: 25000,
-      status: "signed" as const,
-      signedAt: "2024-01-16",
-    },
-  ],
-  workOrders: [
-    {
-      id: "wo-1",
-      title: "Deck Construction",
-      description: "Build new composite deck",
-      clientId: "client-1",
-      status: "open" as const,
-      budget: "$8,000 - $12,000",
-      location: "123 Main St",
-      postedAt: "2024-01-22",
-    },
-  ],
-  clients: [],
-}
-
-const mockContractorData = {
-  projects: [
-    {
-      id: "proj-1",
-      title: "Kitchen Renovation",
-      description: "Complete kitchen remodel with new cabinets and appliances",
-      status: "active" as const,
-      budget: 25000,
-      clientId: "client-1",
-      progress: 65,
-    },
-    {
-      id: "proj-2",
-      title: "Bathroom Remodel",
-      description: "Master bathroom renovation",
-      status: "completed" as const,
-      budget: 15000,
-      clientId: "client-2",
-      progress: 100,
-    },
-    {
-      id: "proj-3",
-      title: "Deck Construction",
-      description: "Build new composite deck with railing",
-      status: "pending" as const,
-      budget: 8000,
-      clientId: "client-3",
-      progress: 0,
-    },
-  ],
-  clients: [
-    {
-      id: "client-1",
-      name: "John Smith",
-      email: "john@example.com",
-      phone: "(555) 123-4567",
-      address: "123 Main St, Anytown, USA",
-      projectsCount: 2,
-    },
-    {
-      id: "client-2",
-      name: "Sarah Johnson",
-      email: "sarah@example.com",
-      phone: "(555) 987-6543",
-      address: "456 Oak Ave, Somewhere, USA",
-      projectsCount: 1,
-    },
-    {
-      id: "client-3",
-      name: "Mike Wilson",
-      email: "mike@example.com",
-      phone: "(555) 456-7890",
-      address: "789 Pine St, Elsewhere, USA",
-      projectsCount: 1,
-    },
-  ],
-  quotes: [
-    {
-      id: "quote-1",
-      projectId: "proj-1",
-      contractorId: "contractor-1",
-      amount: 25000,
-      status: "accepted" as const,
-      submittedAt: "2024-01-15",
-    },
-    {
-      id: "quote-2",
-      projectId: "proj-2",
-      contractorId: "contractor-1",
-      amount: 15000,
-      status: "accepted" as const,
-      submittedAt: "2024-01-10",
-    },
-    {
-      id: "quote-3",
-      projectId: "proj-3",
-      contractorId: "contractor-1",
-      amount: 8000,
-      status: "pending" as const,
-      submittedAt: "2024-01-20",
-    },
-  ],
-  contracts: [
-    {
-      id: "contract-1",
-      projectId: "proj-1",
-      clientId: "client-1",
-      contractorId: "contractor-1",
-      amount: 25000,
-      status: "signed" as const,
-      signedAt: "2024-01-16",
-    },
-    {
-      id: "contract-2",
-      projectId: "proj-2",
-      clientId: "client-2",
-      contractorId: "contractor-1",
-      amount: 15000,
-      status: "signed" as const,
-      signedAt: "2024-01-12",
-    },
-  ],
-  workOrders: [],
-}
 
 function appReducer(state: AppState, action: AppAction): AppState {
   switch (action.type) {
@@ -322,29 +162,37 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   const { userProfile, user } = useAuth()
   const [state, dispatch] = useReducer(appReducer, {
     ...initialState,
-    userRole: userProfile?.role || "contractor", // Default to contractor since that's what our mock user is
+    userRole: userProfile?.role || "contractor",
   })
 
-  // Load mock data when user profile is available or when role changes
+  // Load data from Firestore when user profile is available
   useEffect(() => {
     if (userProfile && user && !state.dataLoaded) {
-      console.log("AppState: Loading mock data for role:", state.userRole)
       dispatch({ type: "SET_LOADING", payload: true })
-
-      // Simulate loading delay
-      setTimeout(() => {
-        const mockData = state.userRole === "contractor" ? mockContractorData : mockClientData
-
-        dispatch({ type: "SET_PROJECTS", payload: mockData.projects })
-        dispatch({ type: "SET_CLIENTS", payload: mockData.clients })
-        dispatch({ type: "SET_QUOTES", payload: mockData.quotes })
-        dispatch({ type: "SET_CONTRACTS", payload: mockData.contracts })
-        dispatch({ type: "SET_WORK_ORDERS", payload: mockData.workOrders })
-        dispatch({ type: "SET_DATA_LOADED", payload: true })
-        dispatch({ type: "SET_LOADING", payload: false })
-
-        console.log("AppState: Mock data loaded successfully for", state.userRole)
-      }, 1000)
+      const load = async () => {
+        try {
+          const role = state.userRole
+          const uid = user.uid
+          const [projects, quotes, contracts, workOrders, clients] = await Promise.all([
+            getProjectsForUser(uid, role),
+            getQuotesForUser(uid, role),
+            getContractsForUser(uid, role),
+            getWorkOrdersForUser(uid, role),
+            role === "contractor" ? getClientsForUser(uid) : getClients(uid),
+          ])
+          dispatch({ type: "SET_PROJECTS", payload: projects })
+          dispatch({ type: "SET_CLIENTS", payload: clients })
+          dispatch({ type: "SET_QUOTES", payload: quotes })
+          dispatch({ type: "SET_CONTRACTS", payload: contracts })
+          dispatch({ type: "SET_WORK_ORDERS", payload: workOrders })
+        } catch (err) {
+          console.error("Failed loading app data", err)
+        } finally {
+          dispatch({ type: "SET_DATA_LOADED", payload: true })
+          dispatch({ type: "SET_LOADING", payload: false })
+        }
+      }
+      load()
     }
   }, [userProfile, user, state.dataLoaded, state.userRole])
 
