@@ -13,11 +13,13 @@ import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAppState } from "@/contexts/app-state-context"
+import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/components/ui/use-toast"
 import type { Project } from "@/lib/firebase-services"
 
 export default function NewProjectPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const { addProject, state } = useAppState()
   const { toast } = useToast()
   const [formData, setFormData] = useState({
@@ -60,23 +62,40 @@ export default function NewProjectPage() {
       return
     }
 
-    // Create new project
-    const newProject = {
+    // Create new project data including required Project fields
+    const selectedClient = state.clients.find(
+      (c) => c.name === formData.client,
+    )
+
+    const newProject: Project & {
+      client?: string
+      address?: string
+      startDate?: string
+      endDate?: string
+      progress: number
+      totalCost: number
+      paidAmount: number
+    } = {
       id: `${Date.now()}`,
       title: formData.title,
+      description: formData.description,
+      status: "pending",
+      budget: Number.parseFloat(formData.budget),
+      clientId: selectedClient?.id || "",
+      contractorId: user?.uid || "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
       client: formData.client,
       address: formData.address,
       startDate: formData.startDate,
       endDate: formData.endDate,
-      status: "pending",
       progress: 0,
       totalCost: Number.parseFloat(formData.budget),
       paidAmount: 0,
-      description: formData.description,
     }
 
     // Add project to state
-    addProject(newProject as Project)
+    addProject(newProject)
 
     // Show success toast
     toast({
