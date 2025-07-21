@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { adminAuth } from "@/lib/firebase-admin"
 
-export function middleware(request: NextRequest) {
-  // For v0 preview, allow all requests
-  if (process.env.NODE_ENV === "development") {
-    return NextResponse.next()
-  }
+export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
@@ -16,11 +13,18 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // For dashboard routes, check for session cookie
+  // For protected routes, verify the Firebase session cookie
   if (pathname.startsWith("/dashboard") || pathname.startsWith("/clients") || pathname.startsWith("/projects")) {
-    const sessionCookie = request.cookies.get("__session")
+    const cookie = request.cookies.get("__session")?.value
 
-    if (!sessionCookie) {
+    if (!cookie) {
+      return NextResponse.redirect(new URL("/login", request.url))
+    }
+
+    try {
+      await adminAuth.verifySessionCookie(cookie)
+    } catch (error) {
+      console.error("Session verification failed:", error)
       return NextResponse.redirect(new URL("/login", request.url))
     }
   }
