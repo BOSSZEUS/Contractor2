@@ -85,6 +85,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
 
       await signOut(clientAuth)
+      await fetch("/api/logout", { method: "POST" })
       setUser(null)
       setUserProfile(null)
 
