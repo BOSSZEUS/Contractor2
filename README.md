@@ -22,6 +22,8 @@ FIREBASE_PRIVATE_KEY=<firebase service account private key>
 
 The public variables (prefixed with `NEXT_PUBLIC_`) are required both on the client and the server. The remaining variables are used only on the server when initializing Firebase Admin.
 
+This project requires **Node.js 18** or later and uses `pnpm` for dependency management.
+
 ## Running the app
 
 Install dependencies and start the development server:
