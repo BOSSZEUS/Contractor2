@@ -97,7 +97,7 @@ export function LicenseForm({ userProfile, onSuccess }: LicenseFormProps) {
 
   useEffect(() => {
     if (userProfile) {
-      const profile: any = userProfile
+      const profile = userProfile as UserProfile
       setFormData({
         licenseNumber:
           profile.contractorProfile?.licenseNumber || profile.licenseNumber || "",
