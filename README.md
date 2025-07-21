@@ -44,3 +44,9 @@ firebase emulators:start
 ```
 
 This command reads `.firebaserc` for the project ID and uses the ports defined in `firebase.json`.
+
+To deploy the Firestore and Storage rules to your Firebase project, run:
+
+```bash
+firebase deploy --only firestore,storage
+```

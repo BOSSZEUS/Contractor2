@@ -9,6 +9,7 @@ import {
   updateDoc,
   setDoc,
   deleteDoc,
+  serverTimestamp,
   onSnapshot,
   orderBy,
   type QueryConstraint,
@@ -418,10 +419,18 @@ export async function getProject(projectId: string): Promise<Project | null> {
 
 export async function createProject(projectData: any): Promise<string> {
   try {
-    // In v0 preview, simulate creation
-    const newId = `proj_${Date.now()}`
-    console.log("Created project:", newId, projectData)
-    return newId
+    if (process.env.NODE_ENV === "development" || !db) {
+      const newId = `proj_${Date.now()}`
+      console.log("Created project:", newId, projectData)
+      return newId
+    }
+
+    const docRef = await addDoc(collection(db, "projects"), {
+      ...projectData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+    return docRef.id
   } catch (error) {
     console.error("Error creating project:", error)
     throw error
@@ -430,8 +439,15 @@ export async function createProject(projectData: any): Promise<string> {
 
 export async function updateProject(projectId: string, updates: any): Promise<void> {
   try {
-    // In v0 preview, simulate update
-    console.log("Updated project:", projectId, updates)
+    if (process.env.NODE_ENV === "development" || !db) {
+      console.log("Updated project:", projectId, updates)
+      return
+    }
+
+    await updateDoc(doc(db, "projects", projectId), {
+      ...updates,
+      updatedAt: serverTimestamp(),
+    })
   } catch (error) {
     console.error("Error updating project:", error)
     throw error
@@ -440,8 +456,12 @@ export async function updateProject(projectId: string, updates: any): Promise<vo
 
 export async function deleteProject(projectId: string): Promise<void> {
   try {
-    // In v0 preview, simulate deletion
-    console.log("Deleted project:", projectId)
+    if (process.env.NODE_ENV === "development" || !db) {
+      console.log("Deleted project:", projectId)
+      return
+    }
+
+    await deleteDoc(doc(db, "projects", projectId))
   } catch (error) {
     console.error("Error deleting project:", error)
     throw error
@@ -451,8 +471,18 @@ export async function deleteProject(projectId: string): Promise<void> {
 // Client Services
 export async function getClients(userId?: string): Promise<Client[]> {
   try {
-    // In v0 preview, return mock data
-    return mockClients
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockClients
+    }
+
+    if (userId) {
+      const q = query(collection(db, "clients"), where("contractorId", "==", userId))
+      const snapshot = await getDocs(q)
+      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Client)
+    }
+
+    const snapshot = await getDocs(collection(db, "clients"))
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Client)
   } catch (error) {
     console.error("Error fetching clients:", error)
     return []
@@ -461,8 +491,13 @@ export async function getClients(userId?: string): Promise<Client[]> {
 
 export async function getClientsForContractor(contractorId: string): Promise<Client[]> {
   try {
-    // In v0 preview, return mock data
-    return mockClients
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockClients
+    }
+
+    const q = query(collection(db, "clients"), where("contractorId", "==", contractorId))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Client)
   } catch (error) {
     console.error("Error fetching clients for contractor:", error)
     return []
@@ -471,8 +506,12 @@ export async function getClientsForContractor(contractorId: string): Promise<Cli
 
 export async function getClient(clientId: string): Promise<Client | null> {
   try {
-    // In v0 preview, return mock data
-    return mockClients.find((client) => client.id === clientId) || null
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockClients.find((client) => client.id === clientId) || null
+    }
+
+    const docSnap = await getDoc(doc(db, "clients", clientId))
+    return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as Client) : null
   } catch (error) {
     console.error("Error fetching client:", error)
     return null
@@ -481,10 +520,18 @@ export async function getClient(clientId: string): Promise<Client | null> {
 
 export async function createClient(clientData: any): Promise<string> {
   try {
-    // In v0 preview, simulate creation
-    const newId = `client_${Date.now()}`
-    console.log("Created client:", newId, clientData)
-    return newId
+    if (process.env.NODE_ENV === "development" || !db) {
+      const newId = `client_${Date.now()}`
+      console.log("Created client:", newId, clientData)
+      return newId
+    }
+
+    const docRef = await addDoc(collection(db, "clients"), {
+      ...clientData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+    return docRef.id
   } catch (error) {
     console.error("Error creating client:", error)
     throw error
@@ -494,8 +541,19 @@ export async function createClient(clientData: any): Promise<string> {
 // Contract Services
 export async function getContracts(userId?: string): Promise<Contract[]> {
   try {
-    // In v0 preview, return mock data
-    return mockContracts
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockContracts
+    }
+
+    if (userId) {
+      const q1 = query(collection(db, "contracts"), where("contractorId", "==", userId))
+      const q2 = query(collection(db, "contracts"), where("clientId", "==", userId))
+      const [snap1, snap2] = await Promise.all([getDocs(q1), getDocs(q2)])
+      return [...snap1.docs, ...snap2.docs].map((d) => ({ id: d.id, ...d.data() }) as Contract)
+    }
+
+    const snapshot = await getDocs(collection(db, "contracts"))
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as Contract)
   } catch (error) {
     console.error("Error fetching contracts:", error)
     return []
@@ -504,8 +562,12 @@ export async function getContracts(userId?: string): Promise<Contract[]> {
 
 export async function getContract(contractId: string): Promise<Contract | null> {
   try {
-    // In v0 preview, return mock data
-    return mockContracts.find((contract) => contract.id === contractId) || null
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockContracts.find((contract) => contract.id === contractId) || null
+    }
+
+    const docSnap = await getDoc(doc(db, "contracts", contractId))
+    return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as Contract) : null
   } catch (error) {
     console.error("Error fetching contract:", error)
     return null
@@ -515,8 +577,18 @@ export async function getContract(contractId: string): Promise<Contract | null> 
 // Payment Services
 export async function getPayments(userId?: string): Promise<any[]> {
   try {
-    // In v0 preview, return mock data
-    return mockPayments
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockPayments
+    }
+
+    if (userId) {
+      const q = query(collection(db, "payments"), where("userId", "==", userId))
+      const snapshot = await getDocs(q)
+      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+    }
+
+    const snapshot = await getDocs(collection(db, "payments"))
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
   } catch (error) {
     console.error("Error fetching payments:", error)
     return []
@@ -525,8 +597,13 @@ export async function getPayments(userId?: string): Promise<any[]> {
 
 export async function getPaymentsForContractor(contractorId: string): Promise<any[]> {
   try {
-    // In v0 preview, return mock data
-    return mockPayments
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockPayments
+    }
+
+    const q = query(collection(db, "payments"), where("contractorId", "==", contractorId))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
   } catch (error) {
     console.error("Error fetching contractor payments:", error)
     return []
@@ -535,10 +612,18 @@ export async function getPaymentsForContractor(contractorId: string): Promise<an
 
 export async function createPayment(paymentData: any): Promise<string> {
   try {
-    // In v0 preview, simulate creation
-    const newId = `payment_${Date.now()}`
-    console.log("Created payment:", newId, paymentData)
-    return newId
+    if (process.env.NODE_ENV === "development" || !db) {
+      const newId = `payment_${Date.now()}`
+      console.log("Created payment:", newId, paymentData)
+      return newId
+    }
+
+    const docRef = await addDoc(collection(db, "payments"), {
+      ...paymentData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+    return docRef.id
   } catch (error) {
     console.error("Error creating payment:", error)
     throw error
@@ -548,8 +633,18 @@ export async function createPayment(paymentData: any): Promise<string> {
 // Work Order Services
 export async function getWorkOrders(userId?: string): Promise<WorkOrder[]> {
   try {
-    // In v0 preview, return mock data
-    return mockWorkOrders
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockWorkOrders
+    }
+
+    if (userId) {
+      const q = query(collection(db, "workOrders"), where("clientId", "==", userId))
+      const snapshot = await getDocs(q)
+      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as WorkOrder)
+    }
+
+    const snapshot = await getDocs(collection(db, "workOrders"))
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as WorkOrder)
   } catch (error) {
     console.error("Error fetching work orders:", error)
     return []
@@ -558,8 +653,13 @@ export async function getWorkOrders(userId?: string): Promise<WorkOrder[]> {
 
 export async function getWorkOrdersForContractor(contractorId: string): Promise<WorkOrder[]> {
   try {
-    // In v0 preview, return mock data
-    return mockWorkOrders
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockWorkOrders
+    }
+
+    const q = query(collection(db, "workOrders"), where("contractorId", "==", contractorId))
+    const snapshot = await getDocs(q)
+    return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }) as WorkOrder)
   } catch (error) {
     console.error("Error fetching contractor work orders:", error)
     return []
@@ -568,8 +668,12 @@ export async function getWorkOrdersForContractor(contractorId: string): Promise<
 
 export async function getWorkOrder(workOrderId: string): Promise<WorkOrder | null> {
   try {
-    // In v0 preview, return mock data
-    return mockWorkOrders.find((wo) => wo.id === workOrderId) || null
+    if (process.env.NODE_ENV === "development" || !db) {
+      return mockWorkOrders.find((wo) => wo.id === workOrderId) || null
+    }
+
+    const docSnap = await getDoc(doc(db, "workOrders", workOrderId))
+    return docSnap.exists() ? ({ id: docSnap.id, ...docSnap.data() } as WorkOrder) : null
   } catch (error) {
     console.error("Error fetching work order:", error)
     return null
@@ -578,10 +682,18 @@ export async function getWorkOrder(workOrderId: string): Promise<WorkOrder | nul
 
 export async function createWorkOrder(workOrderData: any): Promise<string> {
   try {
-    // In v0 preview, simulate creation
-    const newId = `wo_${Date.now()}`
-    console.log("Created work order:", newId, workOrderData)
-    return newId
+    if (process.env.NODE_ENV === "development" || !db) {
+      const newId = `wo_${Date.now()}`
+      console.log("Created work order:", newId, workOrderData)
+      return newId
+    }
+
+    const docRef = await addDoc(collection(db, "workOrders"), {
+      ...workOrderData,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+    return docRef.id
   } catch (error) {
     console.error("Error creating work order:", error)
     throw error
