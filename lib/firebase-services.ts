@@ -7,6 +7,7 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  setDoc,
   deleteDoc,
   onSnapshot,
   orderBy,
@@ -809,4 +810,37 @@ export async function saveGeneratedQuote(_data: any): Promise<string> {
 
 export async function getQuote(_id: string): Promise<any> {
   return null
+}
+
+export async function updateQuoteStatus(quoteId: string, status: string): Promise<void> {
+  const mock = mockQuotes.find((q) => q.id === quoteId)
+  if (mock) mock.status = status as any
+  if (!db) return
+  try {
+    await updateDoc(doc(db, "quotes", quoteId), { status })
+  } catch (error) {
+    console.error("Error updating quote status:", error)
+  }
+}
+
+export async function createProjectFromQuote(quote: Quote): Promise<string> {
+  const newId = `proj_${Date.now()}`
+  const projectData: Project = {
+    id: newId,
+    title: "New Project",
+    description: quote.description || "Project from accepted quote",
+    status: "active",
+    clientId: quote.clientId,
+    contractorId: quote.contractorId,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+  mockProjects.push(projectData)
+  if (!db) return newId
+  try {
+    await setDoc(doc(db, "projects", newId), projectData)
+  } catch (error) {
+    console.error("Error creating project from quote:", error)
+  }
+  return newId
 }

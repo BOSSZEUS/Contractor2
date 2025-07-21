@@ -25,6 +25,13 @@ export async function POST(request: Request, { params }: { params: { id: string 
     await updateQuoteStatus(quoteId, "accepted")
     const projectId = await createProjectFromQuote(quote)
 
+    if (!db) {
+      return NextResponse.json(
+        { error: "Firestore not initialized." },
+        { status: 500 },
+      )
+    }
+
     const quoteDocRef = doc(db, "quotes", quoteId)
     await updateDoc(quoteDocRef, { projectId })
 

@@ -64,12 +64,17 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
         const projectWithTasks = {
           ...foundProject,
           tasks: [
-            { id: "1", title: "Initial Assessment", status: "completed", dueDate: foundProject.startDate },
+            {
+              id: "1",
+              title: "Initial Assessment",
+              status: "completed",
+              dueDate: foundProject.startDate,
+            },
             {
               id: "2",
               title: "Planning & Design",
               status: "completed",
-              dueDate: new Date(new Date(foundProject.startDate).getTime() + 7 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(foundProject.startDate as string).getTime() + 7 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -77,7 +82,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               id: "3",
               title: "Material Procurement",
               status: "in-progress",
-              dueDate: new Date(new Date(foundProject.startDate).getTime() + 14 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(foundProject.startDate as string).getTime() + 14 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -85,7 +90,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               id: "4",
               title: "Construction Phase",
               status: "pending",
-              dueDate: new Date(new Date(foundProject.startDate).getTime() + 21 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(foundProject.startDate as string).getTime() + 21 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -93,7 +98,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               id: "5",
               title: "Final Inspection",
               status: "pending",
-              dueDate: new Date(new Date(foundProject.endDate).getTime() - 7 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(foundProject.endDate as string).getTime() - 7 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -138,7 +143,8 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
     }
   }
 
-  const handleFileUpload = (ref: React.RefObject<HTMLInputElement>) => ref.current?.click()
+  const handleFileUpload = (ref: React.RefObject<HTMLInputElement | null>) =>
+    ref.current?.click()
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

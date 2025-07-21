@@ -73,16 +73,28 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
               id: "1",
               description: "Bathroom remodel - labor only",
               quantity: 1,
-              unit_price: 2000,
-              line_total: 2000,
+              unit: "each",
+              unitPrice: 2000,
+              total: 2000,
+              laborCost: 0,
+              materialTotal: 0,
+              markupAmount: 0,
+              subtotal: 0,
+              deleted: false,
               note: isNewQuote ? "" : "Can we use higher quality materials?",
             },
             {
               id: "2",
               description: "Plumbing inspection and repair",
               quantity: 1,
-              unit_price: 350,
-              line_total: 350,
+              unit: "each",
+              unitPrice: 350,
+              total: 350,
+              laborCost: 0,
+              materialTotal: 0,
+              markupAmount: 0,
+              subtotal: 0,
+              deleted: false,
               note: "",
             },
           ],
@@ -110,13 +122,17 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
     }
   }, [quoteData?.status, toast])
 
-  const updateLineItem = (id: string, field: keyof QuoteLineItem, value: string | number) => {
+  const updateLineItem = (
+    id: string,
+    field: keyof QuoteLineItem,
+    value: string | number,
+  ) => {
     setLineItems((items) =>
       items.map((item) => {
         if (item.id === id) {
-          const updated = { ...item, [field]: value }
-          if (field === "quantity" || field === "unit_price") {
-            updated.line_total = updated.quantity * updated.unit_price
+          const updated: any = { ...item, [field]: value }
+          if (field === "quantity" || field === "unitPrice") {
+            updated.total = updated.quantity * updated.unitPrice
           }
           return updated
         }
@@ -130,7 +146,9 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
   }
 
   const calculateTotal = () => {
-    return lineItems.filter((item) => !item.deleted).reduce((sum, item) => sum + item.line_total, 0)
+    return lineItems
+      .filter((item) => !item.deleted)
+      .reduce((sum, item) => sum + item.total, 0)
   }
 
   const approveQuote = async () => {
@@ -142,7 +160,7 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
           id: item.id,
           description: item.description,
           quantity: item.quantity,
-          unit_price: item.unit_price,
+          unitPrice: item.unitPrice,
           deleted: item.deleted || false,
         })),
         total: calculateTotal(),
@@ -254,7 +272,7 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
     // For demo purposes, we'll highlight certain fields based on item properties
     if (field === "description" && item.description.includes("higher quality")) return true
     if (field === "quantity" && item.quantity > 1) return true
-    if (field === "unit_price" && item.unit_price % 50 !== 0) return true
+    if (field === "unitPrice" && item.unitPrice % 50 !== 0) return true
 
     return false
   }
@@ -361,7 +379,7 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
                     item.note ||
                       isFieldEdited(item, "description") ||
                       isFieldEdited(item, "quantity") ||
-                      isFieldEdited(item, "unit_price")
+                      isFieldEdited(item, "unitPrice")
                   )
                     ? "border-blue-200 bg-blue-50/30"
                     : ""
@@ -399,17 +417,23 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
                   <label className="block text-sm font-medium mb-1">Unit Price</label>
                   <Input
                     type="number"
-                    value={item.unit_price}
-                    onChange={(e) => updateLineItem(item.id, "unit_price", Number.parseFloat(e.target.value) || 0)}
+                    value={item.unitPrice}
+                    onChange={(e) =>
+                      updateLineItem(
+                        item.id,
+                        "unitPrice",
+                        Number.parseFloat(e.target.value) || 0,
+                      )
+                    }
                     disabled={item.deleted || quoteData.status === "approved"}
-                    className={`${isFieldEdited(item, "unit_price") ? "border-yellow-400 bg-yellow-50" : ""}`}
+                    className={`${isFieldEdited(item, "unitPrice") ? "border-yellow-400 bg-yellow-50" : ""}`}
                   />
                 </div>
 
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium mb-1">Line Total</label>
                   <div className={`p-2 bg-gray-50 rounded border font-semibold ${item.deleted ? "line-through" : ""}`}>
-                    ${item.line_total.toFixed(2)}
+                    ${item.total.toFixed(2)}
                   </div>
                 </div>
 

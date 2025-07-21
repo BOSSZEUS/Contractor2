@@ -25,6 +25,18 @@ import { LaborRateManager } from "@/components/labor-rate-manager"
 import { useAppState } from "@/contexts/app-state-context"
 import { useRouter } from "next/navigation"
 
+interface PricingFormData {
+  name: string
+  description: string
+  category: TemplateCategory
+  unit: string
+  basePrice: number
+  laborHours: number
+  materialCost: number
+  markup: number
+  isAdvanced: boolean
+}
+
 // Categories for templates
 const categories: { value: TemplateCategory; label: string }[] = [
   { value: "general", label: "General" },
@@ -52,6 +64,7 @@ export default function ContractorPricingPage() {
   const [isSaving, setIsSaving] = useState(false)
 
   // Form state for create/edit modal
+
   interface PricingFormData {
     name: string
     description: string
@@ -802,7 +815,9 @@ function PricingItemForm({
             <Label htmlFor="category">Category</Label>
             <Select
               value={formData.category}
-              onValueChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, category: value as TemplateCategory }))
+              }
             >
               <SelectTrigger>
                 <SelectValue />

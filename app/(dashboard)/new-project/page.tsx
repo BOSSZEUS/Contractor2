@@ -75,7 +75,7 @@ export default function NewProjectPage() {
     }
 
     // Add project to state
-    addProject(newProject)
+    addProject(newProject as any)
 
     // Show success toast
     toast({
