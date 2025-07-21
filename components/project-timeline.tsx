@@ -6,6 +6,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge"
 import { format, differenceInDays, isBefore, isAfter, isSameDay } from "date-fns"
 
+interface Milestone {
+  id: string
+  title: string
+  date: Date
+  completed: boolean
+}
+
+interface TimelineItem {
+  date: Date
+  type: "start" | "milestone" | "end"
+  title: string
+  milestone: Milestone | null
+}
+
 // Mock project data
 const projects = [
   {
@@ -48,7 +62,7 @@ export function ProjectTimeline() {
     if (!project) return []
 
     const days = differenceInDays(project.endDate, project.startDate) + 1
-    const timelineItems = []
+    const timelineItems: TimelineItem[] = []
 
     // Add start date
     timelineItems.push({

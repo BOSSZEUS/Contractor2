@@ -30,6 +30,8 @@ export interface EnhancedLineItem {
   templateId?: string | null
   extractionConfidence?: number | null
   category?: string
+  originalDescription?: string
+  isManuallyPriced?: boolean
 }
 
 export interface QuoteTotals {
@@ -38,4 +40,21 @@ export interface QuoteTotals {
   totalMaterials: number
   totalMarkup: number
   total: number
+}
+
+export interface Quote {
+  id: string
+  contractorId: string
+  clientId: string
+  clientName?: string
+  projectName?: string
+  lineItems: EnhancedLineItem[]
+  totalLabor: number
+  totalMaterials: number
+  totalMarkup: number
+  subtotal: number
+  total: number
+  status: string
+  createdAt: any
+  updatedAt: any
 }
