@@ -1,5 +1,25 @@
-import { doc, getDoc, collection, query, where, getDocs } from "firebase/firestore"
+import {
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+  orderBy,
+  type QueryConstraint,
+  type WhereFilterOp,
+} from "firebase/firestore"
 import { db } from "./firebase"
+
+export interface FirestoreFilter {
+  field: string
+  operator: WhereFilterOp
+  value: any
+}
 
 export interface UserProfile {
   uid: string
@@ -84,6 +104,112 @@ export interface WorkOrder {
   budget?: number
   createdAt: any
   updatedAt: any
+}
+
+export const firestoreService = {
+  async getDocument(collectionName: string, docId: string) {
+    if (!db) return null
+    try {
+      const docRef = doc(db, collectionName, docId)
+      const docSnap = await getDoc(docRef)
+      return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null
+    } catch (error) {
+      console.error("Error getting document:", error)
+      return null
+    }
+  },
+
+  async getDocuments(
+    collectionName: string,
+    filters: FirestoreFilter[] = [],
+    orderField?: string,
+  ) {
+    if (!db) return []
+    try {
+      const constraints: QueryConstraint[] = []
+      filters.forEach((f) =>
+        constraints.push(where(f.field, f.operator, f.value)),
+      )
+      if (orderField) constraints.push(orderBy(orderField))
+      const q = constraints.length
+        ? query(collection(db, collectionName), ...constraints)
+        : query(collection(db, collectionName))
+      const snapshot = await getDocs(q)
+      return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))
+    } catch (error) {
+      console.error("Error getting documents:", error)
+      return []
+    }
+  },
+
+  async addDocument(collectionName: string, data: any) {
+    if (!db) return null
+    try {
+      const docRef = await addDoc(collection(db, collectionName), data)
+      return docRef.id
+    } catch (error) {
+      console.error("Error adding document:", error)
+      return null
+    }
+  },
+
+  async updateDocument(collectionName: string, docId: string, updates: any) {
+    if (!db) return false
+    try {
+      await updateDoc(doc(db, collectionName, docId), updates)
+      return true
+    } catch (error) {
+      console.error("Error updating document:", error)
+      return false
+    }
+  },
+
+  async deleteDocument(collectionName: string, docId: string) {
+    if (!db) return false
+    try {
+      await deleteDoc(doc(db, collectionName, docId))
+      return true
+    } catch (error) {
+      console.error("Error deleting document:", error)
+      return false
+    }
+  },
+
+  subscribeToDocument(
+    collectionName: string,
+    docId: string,
+    callback: (data: any | null) => void,
+  ) {
+    if (!db) {
+      callback(null)
+      return () => {}
+    }
+    const docRef = doc(db, collectionName, docId)
+    return onSnapshot(docRef, (snap) => {
+      callback(snap.exists() ? { id: snap.id, ...snap.data() } : null)
+    })
+  },
+
+  subscribeToCollection(
+    collectionName: string,
+    callback: (data: any[]) => void,
+    filters: FirestoreFilter[] = [],
+    orderField?: string,
+  ) {
+    if (!db) {
+      callback([])
+      return () => {}
+    }
+    const constraints: QueryConstraint[] = []
+    filters.forEach((f) => constraints.push(where(f.field, f.operator, f.value)))
+    if (orderField) constraints.push(orderBy(orderField))
+    const q = constraints.length
+      ? query(collection(db, collectionName), ...constraints)
+      : query(collection(db, collectionName))
+    return onSnapshot(q, (snap) => {
+      callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })))
+    })
+  },
 }
 
 // Mock data for v0 preview
