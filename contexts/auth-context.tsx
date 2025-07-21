@@ -54,6 +54,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const result = await signInWithEmailAndPassword(clientAuth, email, password)
 
+      const idToken = await result.user.getIdToken()
+      await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      })
+
       toast({
         title: "Login Successful",
         description: "Welcome back!",

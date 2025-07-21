@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-// Firebase Admin SDK is not available in the Edge runtime. Authentication is
-// handled on the client side.
+import { adminAuth } from "@/lib/firebase-admin"
+
+export const runtime = "nodejs"
 
 export async function middleware(request: NextRequest) {
 
@@ -14,9 +15,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // For protected routes, client-side auth will handle redirects
+  const sessionCookie = request.cookies.get("__session")?.value
+  if (!sessionCookie) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
 
-  return NextResponse.next()
+  try {
+    await adminAuth.verifySessionCookie(sessionCookie, true)
+    return NextResponse.next()
+  } catch {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
 }
 
 export const config = {
