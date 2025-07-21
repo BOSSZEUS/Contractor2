@@ -8,6 +8,23 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { PlusCircle } from "lucide-react"
 
+interface DashboardProject {
+  id: string
+  title: string
+  client?: string
+  address?: string
+  startDate?: string
+  endDate?: string
+  status?: string
+  progress?: number
+  totalCost?: number
+  paidAmount?: number
+  description?: string
+  imageUrl?: string
+  downloadURL?: string
+  storagePath?: string
+}
+
 export default function ContractorProjectsPage() {
   const { state } = useAppState()
   const router = useRouter()
@@ -23,7 +40,7 @@ export default function ContractorProjectsPage() {
   }
 
   // In a real app, this would be filtered to show only projects assigned to the contractor.
-  const projects = state.projects || []
+  const projects = (state.projects || []) as DashboardProject[]
 
   return (
     <div className="space-y-6">
@@ -40,7 +57,7 @@ export default function ContractorProjectsPage() {
       {projects.length > 0 ? (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project) => (
-            <ProjectCard key={project.id} project={project as any} />
+            <ProjectCard key={project.id} project={project as DashboardProject} />
           ))}
         </div>
       ) : (

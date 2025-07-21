@@ -14,6 +14,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAppState } from "@/contexts/app-state-context"
 import { useToast } from "@/components/ui/use-toast"
+import type { Project } from "@/lib/firebase-services"
 
 export default function NewProjectPage() {
   const router = useRouter()
@@ -75,7 +76,7 @@ export default function NewProjectPage() {
     }
 
     // Add project to state
-    addProject(newProject as any)
+    addProject(newProject as Project)
 
     // Show success toast
     toast({
