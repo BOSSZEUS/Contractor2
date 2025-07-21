@@ -57,7 +57,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
 
     if (state && state.projects) {
       console.log("Available projects:", state.projects)
-      const foundProject = state.projects.find((p) => p.id === projectId)
+      const foundProject = state.projects.find((p) => p.id === projectId) as any
       console.log("Found project:", foundProject)
 
       if (foundProject) {
