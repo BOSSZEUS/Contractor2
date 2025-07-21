@@ -32,3 +32,13 @@ pnpm dev
 ```
 
 The utility in `lib/env.client.ts` and `lib/env.server.ts` validates these variables at startup using [Zod](https://github.com/colinhacks/zod). If any are missing, the application will throw an error during initialization.
+
+## Local Firebase Emulators
+
+To test Firebase services locally, install the Firebase CLI and run:
+
+```bash
+firebase emulators:start
+```
+
+This command reads `.firebaserc` for the project ID and uses the ports defined in `firebase.json`.
