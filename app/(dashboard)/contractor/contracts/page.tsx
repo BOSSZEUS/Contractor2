@@ -122,7 +122,7 @@ export default function ContractorContractsPage() {
                     <TableCell className="font-medium">{contract.title || "Untitled Contract"}</TableCell>
                     <TableCell>{contract.client || contract.clientName || "Unknown Client"}</TableCell>
                     <TableCell>{contract.project || contract.projectName || "N/A"}</TableCell>
-                    <TableCell>{formatDate(contract.createdAt || contract.signedDate || contract.startDate)}</TableCell>
+                    <TableCell>{formatDate(contract.createdAt || contract.signedAt || contract.startDate)}</TableCell>
                     <TableCell>{formatCurrency(contract.value || contract.amount)}</TableCell>
                     <TableCell>{getStatusBadge(contract.status)}</TableCell>
                     <TableCell className="text-right">

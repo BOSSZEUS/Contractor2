@@ -24,7 +24,9 @@ interface Client {
   email: string
   phone?: string
   address?: string
-  projectsCount: number
+  company?: string
+  createdAt?: any
+  projectsCount?: number
 }
 
 interface Quote {
@@ -39,12 +41,26 @@ interface Quote {
 
 interface Contract {
   id: string
+  title?: string
   projectId: string
   clientId: string
   contractorId: string
+  client?: string
+  clientName?: string
+  project?: string
+  projectName?: string
   amount: number
-  status: "draft" | "signed" | "completed"
+  value?: number
+  status:
+    | "draft"
+    | "signed"
+    | "completed"
+    | "active"
+    | "pending"
+    | "terminated"
   signedAt?: string
+  createdAt?: any
+  startDate?: any
 }
 
 interface WorkOrder {
@@ -79,6 +95,7 @@ type AppAction =
   | { type: "SET_LOADING"; payload: boolean }
   | { type: "SET_DATA_LOADED"; payload: boolean }
   | { type: "CLEAR_DATA" }
+  | { type: "ADD_CLIENT"; payload: Client }
 
 const initialState: AppState = {
   projects: [],
@@ -283,6 +300,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
         ...initialState,
         userRole: state.userRole, // Preserve user role when clearing
       }
+    case "ADD_CLIENT":
+      return { ...state, clients: [...state.clients, action.payload] }
     default:
       return state
   }
@@ -291,6 +310,7 @@ function appReducer(state: AppState, action: AppAction): AppState {
 const AppStateContext = createContext<{
   state: AppState
   dispatch: React.Dispatch<AppAction>
+  addClient: (client: Client) => void
 } | null>(null)
 
 export function AppStateProvider({ children }: { children: React.ReactNode }) {
@@ -331,7 +351,14 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }
   }, [user])
 
-  return <AppStateContext.Provider value={{ state, dispatch }}>{children}</AppStateContext.Provider>
+  const addClient = (client: Client) => {
+    dispatch({ type: "ADD_CLIENT", payload: client })
+  }
+  return (
+    <AppStateContext.Provider value={{ state, dispatch, addClient }}>
+      {children}
+    </AppStateContext.Provider>
+  )
 }
 
 export function useAppState() {
