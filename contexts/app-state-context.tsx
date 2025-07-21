@@ -96,7 +96,9 @@ type AppAction =
   | { type: "SET_DATA_LOADED"; payload: boolean }
   | { type: "CLEAR_DATA" }
   | { type: "ADD_CLIENT"; payload: Client }
+ vzqpep-codex/remove-mock-user-creation-and-use-firebase-auth
   | { type: "ADD_PROJECT"; payload: Project }
+
 
 const initialState: AppState = {
   projects: [],
@@ -303,8 +305,11 @@ function appReducer(state: AppState, action: AppAction): AppState {
       }
     case "ADD_CLIENT":
       return { ...state, clients: [...state.clients, action.payload] }
+vzqpep-codex/remove-mock-user-creation-and-use-firebase-auth
     case "ADD_PROJECT":
       return { ...state, projects: [...state.projects, action.payload] }
+
+main
     default:
       return state
   }
@@ -364,6 +369,10 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   }
   return (
     <AppStateContext.Provider value={{ state, dispatch, addClient, addProject }}>
+
+  return (
+    <AppStateContext.Provider value={{ state, dispatch, addClient }}>
+
       {children}
     </AppStateContext.Provider>
   )

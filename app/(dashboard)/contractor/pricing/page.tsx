@@ -64,6 +64,19 @@ export default function ContractorPricingPage() {
   const [isSaving, setIsSaving] = useState(false)
 
   // Form state for create/edit modal
+
+  interface PricingFormData {
+    name: string
+    description: string
+    category: TemplateCategory
+    unit: string
+    basePrice: number
+    laborHours: number
+    materialCost: number
+    markup: number
+    isAdvanced: boolean
+  }
+
   const [formData, setFormData] = useState<PricingFormData>({
     name: "",
     description: "",
