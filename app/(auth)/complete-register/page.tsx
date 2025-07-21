@@ -5,12 +5,11 @@ import { useRouter } from "next/navigation"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { UserAuth } from "@/context/AuthContext"
+import { useAuth } from "@/contexts/auth-context"
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import { createUserProfile } from "@/lib/actions/user.actions"
 
 const formSchema = z.object({
   firstName: z.string().min(2, {
@@ -24,7 +23,7 @@ const formSchema = z.object({
 const RegisterPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
-  const { createUser } = UserAuth()
+  const { signUp } = useAuth()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,17 +44,13 @@ const RegisterPage = () => {
         return
       }
 
-      const { user } = await createUser(email, password)
+      const result = await signUp(email, password, {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email,
+      })
 
-      if (user) {
-        await createUserProfile({
-          userId: user.uid,
-          firstName: values.firstName,
-          lastName: values.lastName,
-          email: user.email || "",
-          profileImageUrl: user.photoURL || "",
-        })
-
+      if (result.user) {
         toast.success("Account created!")
         await router.replace("/dashboard")
       } else {
