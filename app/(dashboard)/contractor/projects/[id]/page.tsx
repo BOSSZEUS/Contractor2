@@ -12,6 +12,23 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { useAppState } from "@/contexts/app-state-context"
 
+interface DashboardProject {
+  id: string
+  title: string
+  client?: string
+  address?: string
+  startDate?: string
+  endDate?: string
+  status?: string
+  progress?: number
+  totalCost?: number
+  paidAmount?: number
+  description?: string
+  imageUrl?: string
+  downloadURL?: string
+  storagePath?: string
+}
+
 export default function ProjectDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const projectId = params.id
@@ -57,24 +74,25 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
 
     if (state && state.projects) {
       console.log("Available projects:", state.projects)
-      const foundProject = state.projects.find((p) => p.id === projectId) as any
+      const foundProject = state.projects.find((p) => p.id === projectId)
       console.log("Found project:", foundProject)
 
       if (foundProject) {
+        const proj = foundProject as DashboardProject
         const projectWithTasks = {
-          ...foundProject,
+          ...proj,
           tasks: [
             {
               id: "1",
               title: "Initial Assessment",
               status: "completed",
-              dueDate: foundProject.startDate,
+              dueDate: proj.startDate,
             },
             {
               id: "2",
               title: "Planning & Design",
               status: "completed",
-              dueDate: new Date(new Date(foundProject.startDate as string).getTime() + 7 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(proj.startDate as string).getTime() + 7 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -82,7 +100,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               id: "3",
               title: "Material Procurement",
               status: "in-progress",
-              dueDate: new Date(new Date(foundProject.startDate as string).getTime() + 14 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(proj.startDate as string).getTime() + 14 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -90,7 +108,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               id: "4",
               title: "Construction Phase",
               status: "pending",
-              dueDate: new Date(new Date(foundProject.startDate as string).getTime() + 21 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(proj.startDate as string).getTime() + 21 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -98,7 +116,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               id: "5",
               title: "Final Inspection",
               status: "pending",
-              dueDate: new Date(new Date(foundProject.endDate as string).getTime() - 7 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(proj.endDate as string).getTime() - 7 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
