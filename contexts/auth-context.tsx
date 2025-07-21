@@ -11,7 +11,8 @@ import {
 } from "firebase/auth"
 import { doc, setDoc, serverTimestamp } from "firebase/firestore"
 import { clientAuth, db } from "@/lib/firebase"
-import { getUserProfile, type UserProfile } from "@/lib/firebase-services"
+import { getUserProfile } from "@/lib/firebase-services"
+import type { UserProfile } from "@/types"
 import { useToast } from "@/components/ui/use-toast"
 
 interface AuthContextType {

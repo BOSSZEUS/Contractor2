@@ -96,13 +96,13 @@ export function LicenseForm({ userProfile, onSuccess }: LicenseFormProps) {
   })
 
   useEffect(() => {
-    if (userProfile?.contractorProfile) {
+    if (userProfile) {
       setFormData({
-        licenseNumber: userProfile.contractorProfile.licenseNumber || "",
-        licenseType: userProfile.contractorProfile.licenseType || "",
-        state: userProfile.contractorProfile.state || "",
+        licenseNumber: (userProfile as any).contractorProfile?.licenseNumber || userProfile.licenseNumber || "",
+        licenseType: (userProfile as any).contractorProfile?.licenseType || userProfile.licenseType || "",
+        state: (userProfile as any).contractorProfile?.state || userProfile.licenseState || "",
       })
-      setExistingFileUrl(userProfile.contractorProfile.licenseFileUrl)
+      setExistingFileUrl((userProfile as any).contractorProfile?.licenseFileUrl || userProfile.licenseFileUrl || null)
     }
   }, [userProfile])
 

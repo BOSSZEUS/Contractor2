@@ -14,6 +14,7 @@ import {
   type WhereFilterOp,
 } from "firebase/firestore"
 import { db } from "./firebase"
+import type { UserProfile } from "@/types"
 
 export interface FirestoreFilter {
   field: string
@@ -21,24 +22,6 @@ export interface FirestoreFilter {
   value: any
 }
 
-export interface UserProfile {
-  uid: string
-  email: string
-  firstName?: string
-  lastName?: string
-  displayName?: string
-  role: "client" | "contractor"
-  currentRole?: "client" | "contractor"
-  canActAsClient?: boolean
-  verified?: boolean
-  company?: string
-  bio?: string
-  licenseNumber?: string
-  licenseState?: string
-  licenseExpiry?: string
-  createdAt?: any
-  updatedAt?: any
-}
 
 export interface Project {
   id: string
@@ -215,21 +198,20 @@ export const firestoreService = {
 // Mock data for v0 preview
 const mockUserProfile: UserProfile = {
   uid: "mock-user-id",
-  email: "demo@example.com",
   firstName: "John",
   lastName: "Doe",
-  displayName: "John Doe",
+  email: "demo@example.com",
   role: "contractor",
-  currentRole: "contractor",
   canActAsClient: true,
   verified: true,
-  company: "Doe Construction",
-  bio: "Experienced contractor with 10+ years in residential construction",
-  licenseNumber: "C-12345",
-  licenseState: "CA",
-  licenseExpiry: "2025-12-31",
+  contractorProfile: {
+    licenseNumber: "C-12345",
+    licenseType: "General Contractor",
+    licenseFileUrl: "",
+    state: "CA",
+    verified: true,
+  },
   createdAt: new Date(),
-  updatedAt: new Date(),
 }
 
 const mockProjects: Project[] = [
