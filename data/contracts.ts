@@ -1,0 +1,38 @@
+export const contracts = [
+  {
+    id: "1",
+    title: "Kitchen Renovation Agreement",
+    client: "Sarah Johnson",
+    project: "Kitchen Renovation",
+    createdAt: "2023-05-15",
+    status: "signed",
+    value: 12500,
+  },
+  {
+    id: "2",
+    title: "Bathroom Remodel Contract",
+    client: "Michael Smith",
+    project: "Bathroom Remodel",
+    createdAt: "2023-07-01",
+    status: "pending",
+    value: 8750,
+  },
+  {
+    id: "3",
+    title: "Deck Construction Agreement",
+    client: "Emily Davis",
+    project: "Deck Construction",
+    createdAt: "2023-08-10",
+    status: "signed",
+    value: 5500,
+  },
+  {
+    id: "4",
+    title: "Basement Finishing Contract",
+    client: "Robert Wilson",
+    project: "Basement Finishing",
+    createdAt: "2023-09-05",
+    status: "draft",
+    value: 15000,
+  },
+]
