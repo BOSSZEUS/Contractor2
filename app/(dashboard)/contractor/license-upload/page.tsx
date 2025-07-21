@@ -8,7 +8,7 @@ import { Loader2 } from "lucide-react"
 
 export default function LicenseUploadPage() {
   const router = useRouter()
-  const { profile, loading: authLoading } = useAuth()
+  const { userProfile, loading: authLoading } = useAuth()
 
   if (authLoading) {
     return (
@@ -26,7 +26,10 @@ export default function LicenseUploadPage() {
           <CardDescription>Please provide your license information to complete your profile.</CardDescription>
         </CardHeader>
         <CardContent>
-          <LicenseForm userProfile={profile} onSuccess={() => router.push("/dashboard")} />
+          <LicenseForm
+            userProfile={userProfile}
+            onSuccess={() => router.push("/dashboard")}
+          />
         </CardContent>
       </Card>
     </div>
