@@ -82,6 +82,8 @@ export function UnmatchedItemsHandler({ unmatchedItems, laborRates, onItemsConve
       extractionConfidence: currentItem.confidence,
       originalDescription: currentItem.description,
       isManuallyPriced: true,
+      deleted: false,
+      note: "",
     }
 
     setConvertedItems((prev) => [...prev, enhancedItem])

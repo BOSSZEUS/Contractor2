@@ -52,10 +52,22 @@ export default function ContractorPricingPage() {
   const [isSaving, setIsSaving] = useState(false)
 
   // Form state for create/edit modal
-  const [formData, setFormData] = useState({
+  interface PricingFormData {
+    name: string
+    description: string
+    category: TemplateCategory
+    unit: string
+    basePrice: number
+    laborHours: number
+    materialCost: number
+    markup: number
+    isAdvanced: boolean
+  }
+
+  const [formData, setFormData] = useState<PricingFormData>({
     name: "",
     description: "",
-    category: "general" as TemplateCategory,
+    category: "general",
     unit: "",
     basePrice: 0,
     laborHours: 0,
@@ -409,7 +421,7 @@ export default function ContractorPricingPage() {
         ...exportData.map((row) =>
           headers
             .map((header) => {
-              const value = row[header]
+              const value = (row as Record<string, string | number>)[header]
               // Escape commas and quotes in CSV
               return typeof value === "string" && (value.includes(",") || value.includes('"'))
                 ? `"${value.replace(/"/g, '""')}"`
@@ -750,8 +762,8 @@ function PricingItemForm({
   onCancel,
   isSubmitting,
 }: {
-  formData: any
-  setFormData: (data: any) => void
+  formData: PricingFormData
+  setFormData: React.Dispatch<React.SetStateAction<PricingFormData>>
   onSubmit: () => void
   onCancel: () => void
   isSubmitting: boolean
