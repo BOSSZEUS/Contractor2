@@ -19,7 +19,7 @@ interface AuthContextType {
   userProfile: UserProfile | null
   loading: boolean
   profileLoading: boolean
-  signIn: (email: string, password: string) => Promise<any>
+  signIn: (email: string, password: string) => Promise<UserCredential>
   signUp: (email: string, password: string, profileData: Partial<UserProfile>) => Promise<UserCredential>
   logout: () => Promise<void>
 }
@@ -45,45 +45,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [profileLoading, setProfileLoading] = useState(false)
   const { toast } = useToast()
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string): Promise<UserCredential> => {
     try {
-      // For v0 preview, simulate login with mock data
-      if (process.env.NODE_ENV === "development" || !clientAuth) {
-        console.log("Mock login for:", email)
-
-        // Create mock user
-        const mockUser = {
-          uid: "mock-user-id",
-          email,
-          emailVerified: true,
-        } as User
-
-        setUser(mockUser)
-
-        // Create mock profile with contractor permissions
-        const mockProfile: UserProfile = {
-          uid: "mock-user-id",
-          email,
-          role: "contractor", // Set as contractor so they can switch views
-          canActAsClient: true, // Allow switching to client view
-          firstName: "John",
-          lastName: "Contractor",
-          displayName: "John Contractor",
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        }
-
-        setUserProfile(mockProfile)
-
-        toast({
-          title: "Login Successful",
-          description: "Welcome back!",
-        })
-
-        return { user: mockUser }
+      if (!clientAuth) {
+        throw new Error("Firebase not initialized")
       }
 
-      // Production: use Firebase Auth
       const result = await signInWithEmailAndPassword(clientAuth, email, password)
 
       toast({
@@ -105,14 +72,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = async () => {
     try {
-      if (process.env.NODE_ENV === "development" || !clientAuth) {
-        setUser(null)
-        setUserProfile(null)
-        toast({
-          title: "Logged Out",
-          description: "You have been successfully logged out.",
-        })
-        return
+      if (!clientAuth) {
+        throw new Error("Firebase not initialized")
       }
 
       await signOut(clientAuth)
@@ -173,13 +134,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   useEffect(() => {
-    // For v0 preview, don't set up Firebase listener
-    if (process.env.NODE_ENV === "development" || !clientAuth) {
+    if (!clientAuth) {
       setLoading(false)
       return
     }
 
-    // Production: use Firebase auth state listener
     const unsubscribe = onAuthStateChanged(clientAuth, async (user) => {
       console.log("Auth state changed:", user ? `User: ${user.email}` : "No user")
 

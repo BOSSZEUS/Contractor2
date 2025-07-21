@@ -140,18 +140,21 @@ export function LicenseForm({ userProfile, onSuccess }: LicenseFormProps) {
 
     setIsLoading(true)
     try {
+      if (!storage || !db) {
+        throw new Error("Firebase not initialized")
+      }
       let licenseFileUrl = existingFileUrl
 
       // 1. If a new file is provided, upload it
       if (licenseFile) {
         const filePath = `contractor-licenses/${user.uid}/${licenseFile.name}`
-        const fileRef = ref(storage, filePath)
+        const fileRef = ref(storage!, filePath)
         await uploadBytes(fileRef, licenseFile)
         licenseFileUrl = await getDownloadURL(fileRef)
       }
 
       // 2. Update user document in Firestore
-      const userDocRef = doc(db, "users", user.uid)
+      const userDocRef = doc(db!, "users", user.uid)
       await updateDoc(userDocRef, {
         "contractorProfile.licenseNumber": formData.licenseNumber,
         "contractorProfile.licenseType": formData.licenseType,

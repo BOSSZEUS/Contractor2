@@ -815,3 +815,16 @@ export async function getContractById(contractId: string): Promise<Contract | nu
     return null
   }
 }
+
+// Stub implementations for quote generation API
+export async function getContractorPricing(_contractorId: string): Promise<any> {
+  return null
+}
+
+export async function saveGeneratedQuote(_data: any): Promise<string> {
+  return "mock-quote-id"
+}
+
+export async function getQuote(_id: string): Promise<any> {
+  return null
+}
