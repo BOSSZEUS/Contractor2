@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import type { Project } from "@/lib/firebase-services"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -11,18 +12,14 @@ import { useRouter } from "next/navigation"
 import { useAppState } from "@/contexts/app-state-context"
 
 interface ProjectCardProps {
-  project: {
-    id: string
-    title: string
-    client: string
-    address: string
-    startDate: string
-    endDate: string
-    status: string
-    progress: number
-    totalCost: number
-    paidAmount: number
-    description?: string
+  project: Project & {
+    client?: string
+    address?: string
+    startDate?: string
+    endDate?: string
+    progress?: number
+    totalCost?: number
+    paidAmount?: number
     imageUrl?: string
     downloadURL?: string
     storagePath?: string
