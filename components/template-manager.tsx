@@ -20,7 +20,11 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Search, Plus, Edit, Trash2, Copy } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
-import type { LineItemTemplate, TemplateCategory } from "@/types/templates"
+import type {
+  LineItemTemplate,
+  TemplateCategory,
+  CreateLineItemTemplate,
+} from "@/types/templates"
 
 const categories: { value: TemplateCategory; label: string }[] = [
   { value: "general", label: "General" },
@@ -42,16 +46,21 @@ export function TemplateManager() {
   const { toast } = useToast()
 
   // Form state for create/edit modal
-  const [formData, setFormData] = useState({
+  const initialFormData: CreateLineItemTemplate = {
     name: "",
     description: "",
-    category: "general" as TemplateCategory,
+    category: "general",
     unit: "",
     basePrice: 0,
     laborHours: 0,
     materialCost: 0,
     markup: 0,
-  })
+    isActive: true,
+  }
+
+  const [formData, setFormData] = useState<CreateLineItemTemplate>(
+    initialFormData,
+  )
 
   // Fetch templates on component mount
   useEffect(() => {
@@ -213,20 +222,12 @@ export function TemplateManager() {
       laborHours: template.laborHours || 0,
       materialCost: template.materialCost || 0,
       markup: template.markup || 0,
+      isActive: template.isActive,
     })
   }
 
   const resetForm = () => {
-    setFormData({
-      name: "",
-      description: "",
-      category: "general",
-      unit: "",
-      basePrice: 0,
-      laborHours: 0,
-      materialCost: 0,
-      markup: 0,
-    })
+    setFormData(initialFormData)
   }
 
   const closeModals = () => {
@@ -384,8 +385,8 @@ function TemplateForm({
   onSubmit,
   onCancel,
 }: {
-  formData: any
-  setFormData: (data: any) => void
+  formData: CreateLineItemTemplate
+  setFormData: React.Dispatch<React.SetStateAction<CreateLineItemTemplate>>
   onSubmit: () => void
   onCancel: () => void
 }) {
@@ -415,10 +416,12 @@ function TemplateForm({
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label htmlFor="category">Category</Label>
-            <Select
-              value={formData.category}
-              onValueChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
-            >
+              <Select
+                value={formData.category}
+                onValueChange={(value: TemplateCategory) =>
+                  setFormData((prev) => ({ ...prev, category: value }))
+                }
+              >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>

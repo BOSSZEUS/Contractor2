@@ -49,7 +49,10 @@ export default function MessagesPage() {
   ]
 
   // Mock messages for conversations
-  const conversationMessages = {
+  const conversationMessages: Record<
+    string,
+    { id: string; sender: string; content: string; time: string; isMe: boolean }[]
+  > = {
     "1": [
       {
         id: "1",
@@ -204,7 +207,7 @@ export default function MessagesPage() {
             </div>
           </CardHeader>
           <CardContent className="flex-1 overflow-auto p-4 space-y-4">
-            {conversationMessages[activeConversationId]?.map((message) => (
+            {(conversationMessages[activeConversationId] ?? []).map((message) => (
               <div key={message.id} className={`flex ${message.isMe ? "justify-end" : "justify-start"}`}>
                 <div
                   className={`max-w-[80%] rounded-lg p-3 ${

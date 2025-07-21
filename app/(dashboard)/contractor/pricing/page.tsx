@@ -25,6 +25,18 @@ import { LaborRateManager } from "@/components/labor-rate-manager"
 import { useAppState } from "@/contexts/app-state-context"
 import { useRouter } from "next/navigation"
 
+interface PricingFormData {
+  name: string
+  description: string
+  category: TemplateCategory
+  unit: string
+  basePrice: number
+  laborHours: number
+  materialCost: number
+  markup: number
+  isAdvanced: boolean
+}
+
 // Categories for templates
 const categories: { value: TemplateCategory; label: string }[] = [
   { value: "general", label: "General" },
@@ -52,10 +64,10 @@ export default function ContractorPricingPage() {
   const [isSaving, setIsSaving] = useState(false)
 
   // Form state for create/edit modal
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<PricingFormData>({
     name: "",
     description: "",
-    category: "general" as TemplateCategory,
+    category: "general",
     unit: "",
     basePrice: 0,
     laborHours: 0,
@@ -409,7 +421,7 @@ export default function ContractorPricingPage() {
         ...exportData.map((row) =>
           headers
             .map((header) => {
-              const value = row[header]
+              const value = (row as Record<string, string | number>)[header]
               // Escape commas and quotes in CSV
               return typeof value === "string" && (value.includes(",") || value.includes('"'))
                 ? `"${value.replace(/"/g, '""')}"`
@@ -750,8 +762,8 @@ function PricingItemForm({
   onCancel,
   isSubmitting,
 }: {
-  formData: any
-  setFormData: (data: any) => void
+  formData: PricingFormData
+  setFormData: React.Dispatch<React.SetStateAction<PricingFormData>>
   onSubmit: () => void
   onCancel: () => void
   isSubmitting: boolean
@@ -790,7 +802,9 @@ function PricingItemForm({
             <Label htmlFor="category">Category</Label>
             <Select
               value={formData.category}
-              onValueChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, category: value as TemplateCategory }))
+              }
             >
               <SelectTrigger>
                 <SelectValue />

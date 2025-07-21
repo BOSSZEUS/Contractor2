@@ -17,7 +17,11 @@ const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 const auth = getAuth(app)
 
-async function seedData() {
+export async function seedTestData(_uid: string): Promise<{
+  success: boolean
+  message?: string
+  error?: string
+}> {
   console.log("Starting to seed data...")
 
   try {
@@ -89,9 +93,9 @@ async function seedData() {
     }
 
     console.log("Data seeding completed successfully!")
-  } catch (error) {
+    return { success: true, message: "Seeded test data" }
+  } catch (error: any) {
     console.error("Error seeding data:", error)
+    return { success: false, error: error.message }
   }
 }
-
-seedData()

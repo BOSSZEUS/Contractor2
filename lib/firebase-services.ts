@@ -7,6 +7,7 @@ import {
   getDocs,
   addDoc,
   updateDoc,
+  setDoc,
   deleteDoc,
   onSnapshot,
   orderBy,
@@ -14,6 +15,7 @@ import {
   type WhereFilterOp,
 } from "firebase/firestore"
 import { db } from "./firebase"
+import type { UserProfile } from "@/types"
 
 export interface FirestoreFilter {
   field: string
@@ -21,24 +23,6 @@ export interface FirestoreFilter {
   value: any
 }
 
-export interface UserProfile {
-  uid: string
-  email: string
-  firstName?: string
-  lastName?: string
-  displayName?: string
-  role: "client" | "contractor"
-  currentRole?: "client" | "contractor"
-  canActAsClient?: boolean
-  verified?: boolean
-  company?: string
-  bio?: string
-  licenseNumber?: string
-  licenseState?: string
-  licenseExpiry?: string
-  createdAt?: any
-  updatedAt?: any
-}
 
 export interface Project {
   id: string
@@ -215,21 +199,20 @@ export const firestoreService = {
 // Mock data for v0 preview
 const mockUserProfile: UserProfile = {
   uid: "mock-user-id",
-  email: "demo@example.com",
   firstName: "John",
   lastName: "Doe",
-  displayName: "John Doe",
+  email: "demo@example.com",
   role: "contractor",
-  currentRole: "contractor",
   canActAsClient: true,
   verified: true,
-  company: "Doe Construction",
-  bio: "Experienced contractor with 10+ years in residential construction",
-  licenseNumber: "C-12345",
-  licenseState: "CA",
-  licenseExpiry: "2025-12-31",
+  contractorProfile: {
+    licenseNumber: "C-12345",
+    licenseType: "General Contractor",
+    licenseFileUrl: "",
+    state: "CA",
+    verified: true,
+  },
   createdAt: new Date(),
-  updatedAt: new Date(),
 }
 
 const mockProjects: Project[] = [
@@ -814,4 +797,50 @@ export async function getContractById(contractId: string): Promise<Contract | nu
     console.error("Error fetching contract:", error)
     return null
   }
+}
+
+// Stub implementations for quote generation API
+export async function getContractorPricing(_contractorId: string): Promise<any> {
+  return null
+}
+
+export async function saveGeneratedQuote(_data: any): Promise<string> {
+  return "mock-quote-id"
+}
+
+export async function getQuote(_id: string): Promise<any> {
+  return null
+}
+
+export async function updateQuoteStatus(quoteId: string, status: string): Promise<void> {
+  const mock = mockQuotes.find((q) => q.id === quoteId)
+  if (mock) mock.status = status as any
+  if (!db) return
+  try {
+    await updateDoc(doc(db, "quotes", quoteId), { status })
+  } catch (error) {
+    console.error("Error updating quote status:", error)
+  }
+}
+
+export async function createProjectFromQuote(quote: Quote): Promise<string> {
+  const newId = `proj_${Date.now()}`
+  const projectData: Project = {
+    id: newId,
+    title: "New Project",
+    description: quote.description || "Project from accepted quote",
+    status: "active",
+    clientId: quote.clientId,
+    contractorId: quote.contractorId,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  }
+  mockProjects.push(projectData)
+  if (!db) return newId
+  try {
+    await setDoc(doc(db, "projects", newId), projectData)
+  } catch (error) {
+    console.error("Error creating project from quote:", error)
+  }
+  return newId
 }
