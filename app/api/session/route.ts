@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
   try {
     const { idToken } = await request.json()
 
-    if (!idToken) {
+    if (typeof idToken !== "string" || !idToken) {
       return NextResponse.json({ error: "ID token is required" }, { status: 400 })
     }
 
@@ -29,7 +29,6 @@ export async function POST(request: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 7 days
-      path: "/",
     })
 
     return response
