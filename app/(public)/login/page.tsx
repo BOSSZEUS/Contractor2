@@ -29,7 +29,9 @@ export default function LoginPage() {
 
     try {
       await signIn(email, password)
-      console.log("Login successful, redirecting to dashboard...")
+      if (process.env.NODE_ENV === "development") {
+        console.log("Login successful, redirecting to dashboard...")
+      }
       router.push("/dashboard")
     } catch (error: any) {
       console.error("Login error:", error)

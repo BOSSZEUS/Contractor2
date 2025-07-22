@@ -187,7 +187,9 @@ export default function ContractorPricingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleCreateTemplate = async () => {
-    console.log("Creating template with data:", formData)
+    if (process.env.NODE_ENV === "development") {
+      console.log("Creating template with data:", formData)
+    }
     setIsSubmitting(true)
     try {
       // Validate required fields
@@ -783,7 +785,9 @@ function PricingItemForm({
 }) {
   const handleSubmit = (e: any) => {
     e.preventDefault()
-    console.log("Save button clicked with data:", formData)
+    if (process.env.NODE_ENV === "development") {
+      console.log("Save button clicked with data:", formData)
+    }
     onSubmit()
   }
 
