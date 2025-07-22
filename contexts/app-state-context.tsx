@@ -136,7 +136,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
   // Clear data when user logs out
   useEffect(() => {
     if (!user) {
-      console.log("AppState: User logged out, clearing data")
+      if (process.env.NODE_ENV === "development") {
+        console.log("AppState: User logged out, clearing data")
+      }
       dispatch({ type: "CLEAR_DATA" })
     }
   }, [user])

@@ -68,7 +68,9 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
     e.preventDefault()
     e.stopPropagation()
 
-    console.log("Navigating to project:", project.id, "as role:", userRole)
+    if (process.env.NODE_ENV === "development") {
+      console.log("Navigating to project:", project.id, "as role:", userRole)
+    }
 
     if (userRole === "contractor") {
       router.push(`/dashboard/contractor/projects/${project.id}`)

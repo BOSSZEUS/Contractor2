@@ -27,7 +27,9 @@ export function UserNav() {
 
   const handleRoleSwitch = () => {
     const newRole = state.userRole === "contractor" ? "client" : "contractor"
-    console.log("Switching role from", state.userRole, "to", newRole)
+    if (process.env.NODE_ENV === "development") {
+      console.log("Switching role from", state.userRole, "to", newRole)
+    }
     dispatch({ type: "SET_USER_ROLE", payload: newRole })
     dispatch({ type: "SET_DATA_LOADED", payload: false }) // Force data reload
   }

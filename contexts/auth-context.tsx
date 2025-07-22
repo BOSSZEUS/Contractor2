@@ -149,7 +149,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     const unsubscribe = onAuthStateChanged(clientAuth, async (user) => {
-      console.log("Auth state changed:", user ? `User: ${user.email}` : "No user")
+      if (process.env.NODE_ENV === "development") {
+        console.log(
+          "Auth state changed:",
+          user ? `User: ${user.email}` : "No user"
+        )
+      }
 
       setLoading(true)
       setProfileLoading(true)
@@ -160,7 +165,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
           const profile = await getUserProfile(user.uid)
           if (profile) {
             setUserProfile(profile)
-            console.log("Profile loaded:", profile)
+            if (process.env.NODE_ENV === "development") {
+              console.log("Profile loaded:", profile)
+            }
           } else {
             console.warn("No profile found for user")
             setUserProfile(null)

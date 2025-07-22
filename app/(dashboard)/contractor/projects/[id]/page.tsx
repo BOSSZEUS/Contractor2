@@ -62,20 +62,28 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    console.log("ProjectDetailsPage - Current state:", state)
-    console.log("ProjectDetailsPage - Project ID:", projectId)
-    console.log("ProjectDetailsPage - User Role:", state?.userRole)
+    if (process.env.NODE_ENV === "development") {
+      console.log("ProjectDetailsPage - Current state:", state)
+      console.log("ProjectDetailsPage - Project ID:", projectId)
+      console.log("ProjectDetailsPage - User Role:", state?.userRole)
+    }
 
     if (state?.userRole !== "contractor") {
-      console.log("Not contractor, redirecting to dashboard")
+      if (process.env.NODE_ENV === "development") {
+        console.log("Not contractor, redirecting to dashboard")
+      }
       router.push("/dashboard")
       return
     }
 
     if (state && state.projects) {
-      console.log("Available projects:", state.projects)
+      if (process.env.NODE_ENV === "development") {
+        console.log("Available projects:", state.projects)
+      }
       const foundProject = state.projects.find((p) => p.id === projectId)
-      console.log("Found project:", foundProject)
+      if (process.env.NODE_ENV === "development") {
+        console.log("Found project:", foundProject)
+      }
 
       if (foundProject) {
         const proj = foundProject as DashboardProject
@@ -123,14 +131,20 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
           ],
         }
         setProject(projectWithTasks)
-        console.log("Project set:", projectWithTasks)
+        if (process.env.NODE_ENV === "development") {
+          console.log("Project set:", projectWithTasks)
+        }
       } else {
-        console.log("Project not found, redirecting to dashboard")
+        if (process.env.NODE_ENV === "development") {
+          console.log("Project not found, redirecting to dashboard")
+        }
         router.push("/dashboard/contractor/projects")
       }
       setLoading(false)
     } else {
-      console.log("No state or projects available")
+      if (process.env.NODE_ENV === "development") {
+        console.log("No state or projects available")
+      }
       setLoading(false)
     }
   }, [state, projectId, router])
