@@ -13,46 +13,11 @@ import {
   type Project,
   type Quote,
   type WorkOrder,
+  type Client,
+  type Contract,
 } from "@/lib/firebase-services"
 
 // Types
-
-interface Client {
-  id: string
-  name: string
-  email: string
-  phone?: string
-  address?: string
-  company?: string
-  createdAt?: any
-  projectsCount?: number
-}
-
-
-interface Contract {
-  id: string
-  title?: string
-  projectId: string
-  clientId: string
-  contractorId: string
-  client?: string
-  clientName?: string
-  project?: string
-  projectName?: string
-  amount: number
-  value?: number
-  status:
-    | "draft"
-    | "signed"
-    | "completed"
-    | "active"
-    | "pending"
-    | "terminated"
-  signedAt?: string
-  createdAt?: any
-  startDate?: any
-}
-
 
 interface AppState {
   projects: Project[]
