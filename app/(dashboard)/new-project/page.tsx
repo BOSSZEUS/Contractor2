@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation"
 import { useAppState } from "@/contexts/app-state-context"
 import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/components/ui/use-toast"
-import type { Project } from "@/lib/firebase-services"
+import { createProject, type Project } from "@/lib/firebase-services"
 
 export default function NewProjectPage() {
   const router = useRouter()
@@ -47,7 +47,7 @@ export default function NewProjectPage() {
     setFormData((prev) => ({ ...prev, [id]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
@@ -67,24 +67,13 @@ export default function NewProjectPage() {
       (c) => c.name === formData.client,
     )
 
-    const newProject: Project & {
-      client?: string
-      address?: string
-      startDate?: string
-      endDate?: string
-      progress: number
-      totalCost: number
-      paidAmount: number
-    } = {
-      id: `${Date.now()}`,
+    const projectData = {
       title: formData.title,
       description: formData.description,
       status: "pending",
       budget: Number.parseFloat(formData.budget),
       clientId: selectedClient?.id || "",
       contractorId: user?.uid || "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
       client: formData.client,
       address: formData.address,
       startDate: formData.startDate,
@@ -94,19 +83,46 @@ export default function NewProjectPage() {
       paidAmount: 0,
     }
 
-    // Add project to state
-    addProject(newProject)
+    try {
+      const projectId = await createProject(projectData)
+      const newProject: Project & {
+        client?: string
+        address?: string
+        startDate?: string
+        endDate?: string
+        progress: number
+        totalCost: number
+        paidAmount: number
+      } = {
+        ...projectData,
+        id: projectId,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }
 
-    // Show success toast
-    toast({
-      title: "Success",
-      description: "Project created successfully",
-    })
+      // Add project to state with the returned id
+      addProject(newProject)
 
-    // Redirect to dashboard
-    setTimeout(() => {
-      router.push("/dashboard")
-    }, 500)
+      // Show success toast
+      toast({
+        title: "Success",
+        description: "Project created successfully",
+      })
+
+      // Redirect to dashboard
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 500)
+    } catch (error) {
+      console.error("Failed to create project", error)
+      toast({
+        title: "Error",
+        description: "Failed to create project",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
