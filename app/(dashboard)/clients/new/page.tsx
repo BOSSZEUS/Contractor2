@@ -12,10 +12,13 @@ import { ChevronLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useAppState } from "@/contexts/app-state-context"
 import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from "@/contexts/auth-context"
+import { createClient } from "@/lib/firebase-services"
 
 export default function NewClientPage() {
   const router = useRouter()
   const { addClient } = useAppState()
+  const { user } = useAuth()
   const { toast } = useToast()
 
   const [formData, setFormData] = useState({
@@ -34,7 +37,7 @@ export default function NewClientPage() {
     setFormData((prev) => ({ ...prev, [id]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
@@ -49,31 +52,40 @@ export default function NewClientPage() {
       return
     }
 
-    // Create new client
-    const newClient = {
-      id: `${Date.now()}`,
-      name: `${formData.firstName} ${formData.lastName}`,
-      email: formData.email,
-      phone: formData.phone,
-      address: formData.address,
-      company: formData.company,
-      projects: 0,
-      totalSpent: 0,
+    try {
+      const id = await createClient({ ...formData, contractorId: user?.uid })
+
+      const newClient = {
+        id,
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        company: formData.company,
+        projects: 0,
+        totalSpent: 0,
+      }
+
+      addClient(newClient)
+
+      toast({
+        title: "Success",
+        description: "Client added successfully",
+      })
+
+      setTimeout(() => {
+        router.push("/clients")
+      }, 500)
+    } catch (err) {
+      console.error(err)
+      toast({
+        title: "Error",
+        description: "Failed to add client",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
     }
-
-    // Add client to state
-    addClient(newClient)
-
-    // Show success toast
-    toast({
-      title: "Success",
-      description: "Client added successfully",
-    })
-
-    // Redirect to clients page
-    setTimeout(() => {
-      router.push("/clients")
-    }, 500)
   }
 
   return (
