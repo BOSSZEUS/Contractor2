@@ -32,7 +32,7 @@ export default function ContractorProjectsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">My Projects</h1>
         <Button asChild>
-          <Link href="/dashboard/new-project">
+          <Link href="/new-project">
             <PlusCircle className="mr-2 h-4 w-4" />
             New Project
           </Link>
@@ -50,7 +50,7 @@ export default function ContractorProjectsPage() {
           <h2 className="text-xl font-semibold">No active projects.</h2>
           <p className="text-muted-foreground mt-2">Create a new project to get started.</p>
           <Button className="mt-4" asChild>
-            <Link href="/dashboard/new-project">
+            <Link href="/new-project">
               <PlusCircle className="mr-2 h-4 w-4" />
               New Project
             </Link>

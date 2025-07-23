@@ -4,7 +4,7 @@ import type { DecodedIdToken } from "firebase-admin/auth"
 
 export async function getUserFromSession(): Promise<DecodedIdToken | null> {
   try {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
     const sessionCookie = cookieStore.get("__session")?.value
     if (!sessionCookie) {
       return null
