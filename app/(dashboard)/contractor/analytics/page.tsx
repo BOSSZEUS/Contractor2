@@ -126,7 +126,7 @@ export default function ContractorAnalyticsPage() {
               className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
               asChild
             >
-              <Link href="/contractor/my-quotes" className="w-full">
+              <Link href="/contractor/quotes" className="w-full">
                 Quotes
               </Link>
             </TabsTrigger>

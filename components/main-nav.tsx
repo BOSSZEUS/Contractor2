@@ -39,7 +39,7 @@ export function MainNav({ className, ...props }: React.HTMLAttributes<HTMLElemen
     const baseContractorRoutes = [
       { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
       { href: "/job-board", label: "Available Jobs", icon: ClipboardList },
-      { href: "/contractor/my-quotes", label: "My Quotes", icon: FileText },
+      { href: "/contractor/quotes", label: "My Quotes", icon: FileText },
       { href: "/contractor/projects", label: "My Projects", icon: Home, isPrefix: true },
       { href: "/contractor/pricing", label: "My Pricing", icon: CreditCard, isPrefix: true },
       { href: "/project-tools", label: "Project Tools", icon: BarChart2 },
