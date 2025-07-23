@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    nodeMiddleware: true,
-  },
+  // experimental: {
+  //   nodeMiddleware: true,
+  // },
   eslint: {
     ignoreDuringBuilds: true,
   },
