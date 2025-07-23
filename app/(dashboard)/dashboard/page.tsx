@@ -146,7 +146,7 @@ export default function DashboardPage() {
                       : "Create your first project to get started."}
                   </p>
                   <Button asChild>
-                    <Link href={isContractor ? "/contractor/projects" : "/projects/new"}>
+                    <Link href={isContractor ? "/contractor/projects" : "/post-work-order"}>
                       {isContractor ? "View Projects" : "Create Project"}
                     </Link>
                   </Button>
@@ -192,25 +192,25 @@ export default function DashboardPage() {
             ) : (
               <>
                 <Button asChild className="w-full justify-start">
-                  <Link href="/projects/new">
+                  <Link href="/post-work-order">
                     <FileText className="mr-2 h-4 w-4" />
                     New Project
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full justify-start bg-transparent">
-                  <Link href="/projects">
+                  <Link href="/my-projects">
                     <FileText className="mr-2 h-4 w-4" />
                     My Projects
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full justify-start bg-transparent">
-                  <Link href="/quotes">
+                  <Link href="/my-work-orders">
                     <DollarSign className="mr-2 h-4 w-4" />
                     Review Quotes
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="w-full justify-start bg-transparent">
-                  <Link href="/contracts">
+                  <Link href="/my-contracts">
                     <FileText className="mr-2 h-4 w-4" />
                     My Contracts
                   </Link>

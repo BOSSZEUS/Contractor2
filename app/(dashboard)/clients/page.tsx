@@ -252,7 +252,7 @@ export default function ClientsPage() {
                   You don't have any clients with active projects at the moment.
                 </p>
                 <Button asChild>
-                  <Link href="/projects/new">
+                  <Link href="/new-project">
                     <Plus className="mr-2 h-4 w-4" />
                     Start New Project
                   </Link>

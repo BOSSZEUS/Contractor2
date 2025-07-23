@@ -73,9 +73,9 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
     }
 
     if (userRole === "contractor") {
-      router.push(`/dashboard/contractor/projects/${project.id}`)
+      router.push(`/contractor/projects/${project.id}`)
     } else {
-      router.push(`/dashboard/my-projects/${project.id}`)
+      router.push(`/my-projects/${project.id}`)
     }
   }
 

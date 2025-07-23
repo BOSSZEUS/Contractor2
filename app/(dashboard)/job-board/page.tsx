@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Clock, Star, DollarSign } from "lucide-react"
 import { useAppState } from "@/contexts/app-state-context"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 
 interface WorkOrder {
   id: string
@@ -154,13 +155,10 @@ export default function JobBoardContractor() {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild>
-              <a href="/post-work-order">Post a New Work Order</a>
+              <Link href="/post-work-order">Post a New Work Order</Link>
             </Button>
             <Button variant="outline" asChild>
-              <a href="/my-work-orders">View My Work Orders</a>
-            </Button>
-            <Button variant="outline" asChild>
-              <a href="/quote-inbox">Check Quote Inbox</a>
+              <Link href="/my-work-orders">View My Work Orders</Link>
             </Button>
           </div>
         </div>
