@@ -1,8 +1,14 @@
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { CheckIcon, FileText, Users, CreditCard } from "lucide-react"
+import { getUserFromSession } from "@/lib/getUserFromSession"
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const user = await getUserFromSession()
+  if (user) {
+    redirect("/dashboard")
+  }
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
