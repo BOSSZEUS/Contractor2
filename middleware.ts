@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
-import { adminAuth } from "@/lib/firebase-admin"
-
-export const runtime = "nodejs"
 
 export async function middleware(request: NextRequest) {
 
@@ -15,17 +12,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const sessionCookie = request.cookies.get("__session")?.value
+  const sessionCookie = request.cookies.get("__session")
   if (!sessionCookie) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
-  try {
-    await adminAuth.verifySessionCookie(sessionCookie, true)
-    return NextResponse.next()
-  } catch {
-    return NextResponse.redirect(new URL("/login", request.url))
-  }
+  return NextResponse.next()
 }
 
 export const config = {
