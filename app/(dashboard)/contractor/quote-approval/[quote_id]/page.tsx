@@ -175,7 +175,7 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
         description: "Quote has been approved and sent to the client",
       })
 
-      router.push("/contractor/my-quotes")
+      router.push("/contractor/quotes")
     } catch (error) {
       toast({
         title: "Error",
@@ -198,7 +198,7 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
         description: "Quote has been deleted",
       })
 
-      router.push("/contractor/my-quotes")
+      router.push("/contractor/quotes")
     } catch (error) {
       toast({
         title: "Error",
@@ -515,7 +515,7 @@ export default function ContractorQuoteApprovalPage({ params }: { params: { quot
 
       {quoteData.status === "approved" && (
         <div className="flex justify-end">
-          <Button variant="outline" onClick={() => router.push("/contractor/my-quotes")}>
+          <Button variant="outline" onClick={() => router.push("/contractor/quotes")}>
             Back to My Quotes
           </Button>
         </div>
