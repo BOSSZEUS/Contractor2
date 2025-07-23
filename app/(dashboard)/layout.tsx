@@ -72,15 +72,19 @@ export default function DashboardLayout({
 
   // Show auth required if user is not authenticated or profile is missing
   if (!user || !userProfile) {
-    console.log("Dashboard Layout: Auth check failed", { user: !!user, userProfile: !!userProfile })
+    if (process.env.NODE_ENV === "development") {
+      console.log("Dashboard Layout: Auth check failed", { user: !!user, userProfile: !!userProfile })
+    }
     return <AuthRequired />
   }
 
-  console.log("Dashboard Layout: User authenticated", {
-    email: user.email,
-    role: userProfile.role,
-    uid: userProfile.uid,
-  })
+  if (process.env.NODE_ENV === "development") {
+    console.log("Dashboard Layout: User authenticated", {
+      email: user.email,
+      role: userProfile.role,
+      uid: userProfile.uid,
+    })
+  }
 
   // User is authenticated and profile is loaded - render dashboard
   return (

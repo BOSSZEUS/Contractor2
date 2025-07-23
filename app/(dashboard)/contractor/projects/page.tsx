@@ -7,6 +7,8 @@ import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { PlusCircle } from "lucide-react"
+import type { Project } from "@/lib/firebase-services"
+
 
 export default function ContractorProjectsPage() {
   const { state } = useAppState()

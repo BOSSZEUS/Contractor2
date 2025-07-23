@@ -13,10 +13,13 @@ import { ChevronLeft } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useAppState } from "@/contexts/app-state-context"
+import { useAuth } from "@/contexts/auth-context"
 import { useToast } from "@/components/ui/use-toast"
+import { createProject, type Project } from "@/lib/firebase-services"
 
 export default function NewProjectPage() {
   const router = useRouter()
+  const { user } = useAuth()
   const { addProject, state } = useAppState()
   const { toast } = useToast()
   const [formData, setFormData] = useState({
@@ -44,7 +47,7 @@ export default function NewProjectPage() {
     setFormData((prev) => ({ ...prev, [id]: value }))
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
 
@@ -59,34 +62,65 @@ export default function NewProjectPage() {
       return
     }
 
-    // Create new project
-    const newProject = {
-      id: `${Date.now()}`,
+    // Create new project data including required Project fields
+    const selectedClient = state.clients.find(
+      (c) => c.name === formData.client,
+    )
+
+    const projectData: Project = {
+      id: "",
       title: formData.title,
+      description: formData.description,
+      status: "pending",
+      budget: Number.parseFloat(formData.budget),
+      clientId: selectedClient?.id || "",
+      contractorId: user?.uid || "",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }
+
+    const extendedData = {
       client: formData.client,
       address: formData.address,
       startDate: formData.startDate,
       endDate: formData.endDate,
-      status: "pending",
       progress: 0,
       totalCost: Number.parseFloat(formData.budget),
       paidAmount: 0,
-      description: formData.description,
     }
 
-    // Add project to state
-    addProject(newProject)
+    try {
+      const { id: _id, ...createData } = { ...projectData, ...extendedData }
+      const projectId = await createProject(createData)
+      const newProject = {
+        ...projectData,
+        ...extendedData,
+        id: projectId,
+      }
 
-    // Show success toast
-    toast({
-      title: "Success",
-      description: "Project created successfully",
-    })
+      // Add project to state with the returned id
+      addProject(newProject)
 
-    // Redirect to dashboard
-    setTimeout(() => {
-      router.push("/dashboard")
-    }, 500)
+      // Show success toast
+      toast({
+        title: "Success",
+        description: "Project created successfully",
+      })
+
+      // Redirect to dashboard
+      setTimeout(() => {
+        router.push("/dashboard")
+      }, 500)
+    } catch (error) {
+      console.error("Failed to create project", error)
+      toast({
+        title: "Error",
+        description: "Failed to create project",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (

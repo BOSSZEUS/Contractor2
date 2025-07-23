@@ -12,6 +12,23 @@ import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
 import { useAppState } from "@/contexts/app-state-context"
 
+interface DashboardProject {
+  id: string
+  title: string
+  client?: string
+  address?: string
+  startDate?: string
+  endDate?: string
+  status?: string
+  progress?: number
+  totalCost?: number
+  paidAmount?: number
+  description?: string
+  imageUrl?: string
+  downloadURL?: string
+  storagePath?: string
+}
+
 export default function ProjectDetailsPage({ params }: { params: { id: string } }) {
   const router = useRouter()
   const projectId = params.id
@@ -45,31 +62,45 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    console.log("ProjectDetailsPage - Current state:", state)
-    console.log("ProjectDetailsPage - Project ID:", projectId)
-    console.log("ProjectDetailsPage - User Role:", state?.userRole)
+    if (process.env.NODE_ENV === "development") {
+      console.log("ProjectDetailsPage - Current state:", state)
+      console.log("ProjectDetailsPage - Project ID:", projectId)
+      console.log("ProjectDetailsPage - User Role:", state?.userRole)
+    }
 
     if (state?.userRole !== "contractor") {
-      console.log("Not contractor, redirecting to dashboard")
+      if (process.env.NODE_ENV === "development") {
+        console.log("Not contractor, redirecting to dashboard")
+      }
       router.push("/dashboard")
       return
     }
 
     if (state && state.projects) {
-      console.log("Available projects:", state.projects)
+      if (process.env.NODE_ENV === "development") {
+        console.log("Available projects:", state.projects)
+      }
       const foundProject = state.projects.find((p) => p.id === projectId)
-      console.log("Found project:", foundProject)
+      if (process.env.NODE_ENV === "development") {
+        console.log("Found project:", foundProject)
+      }
 
       if (foundProject) {
+        const proj = foundProject as DashboardProject
         const projectWithTasks = {
-          ...foundProject,
+          ...proj,
           tasks: [
-            { id: "1", title: "Initial Assessment", status: "completed", dueDate: foundProject.startDate },
+            {
+              id: "1",
+              title: "Initial Assessment",
+              status: "completed",
+              dueDate: proj.startDate,
+            },
             {
               id: "2",
               title: "Planning & Design",
               status: "completed",
-              dueDate: new Date(new Date(foundProject.startDate).getTime() + 7 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(proj.startDate as string).getTime() + 7 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -77,7 +108,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               id: "3",
               title: "Material Procurement",
               status: "in-progress",
-              dueDate: new Date(new Date(foundProject.startDate).getTime() + 14 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(proj.startDate as string).getTime() + 14 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -85,7 +116,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               id: "4",
               title: "Construction Phase",
               status: "pending",
-              dueDate: new Date(new Date(foundProject.startDate).getTime() + 21 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(proj.startDate as string).getTime() + 21 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
@@ -93,21 +124,27 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
               id: "5",
               title: "Final Inspection",
               status: "pending",
-              dueDate: new Date(new Date(foundProject.endDate).getTime() - 7 * 24 * 60 * 60 * 1000)
+              dueDate: new Date(new Date(proj.endDate as string).getTime() - 7 * 24 * 60 * 60 * 1000)
                 .toISOString()
                 .split("T")[0],
             },
           ],
         }
         setProject(projectWithTasks)
-        console.log("Project set:", projectWithTasks)
+        if (process.env.NODE_ENV === "development") {
+          console.log("Project set:", projectWithTasks)
+        }
       } else {
-        console.log("Project not found, redirecting to dashboard")
+        if (process.env.NODE_ENV === "development") {
+          console.log("Project not found, redirecting to dashboard")
+        }
         router.push("/dashboard/contractor/projects")
       }
       setLoading(false)
     } else {
-      console.log("No state or projects available")
+      if (process.env.NODE_ENV === "development") {
+        console.log("No state or projects available")
+      }
       setLoading(false)
     }
   }, [state, projectId, router])
@@ -138,7 +175,8 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
     }
   }
 
-  const handleFileUpload = (ref: React.RefObject<HTMLInputElement>) => ref.current?.click()
+  const handleFileUpload = (ref: React.RefObject<HTMLInputElement | null>) =>
+    ref.current?.click()
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {

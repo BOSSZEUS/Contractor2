@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { adminAuth } from "@/lib/firebase-admin"
 
-export function middleware(request: NextRequest) {
-  // For v0 preview, allow all requests
-  if (process.env.NODE_ENV === "development") {
-    return NextResponse.next()
-  }
+export const runtime = "nodejs"
+
+export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl
 
@@ -16,16 +15,17 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  // For dashboard routes, check for session cookie
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/clients") || pathname.startsWith("/projects")) {
-    const sessionCookie = request.cookies.get("__session")
-
-    if (!sessionCookie) {
-      return NextResponse.redirect(new URL("/login", request.url))
-    }
+  const sessionCookie = request.cookies.get("__session")?.value
+  if (!sessionCookie) {
+    return NextResponse.redirect(new URL("/login", request.url))
   }
 
-  return NextResponse.next()
+  try {
+    await adminAuth.verifySessionCookie(sessionCookie, true)
+    return NextResponse.next()
+  } catch {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
 }
 
 export const config = {

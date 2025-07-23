@@ -64,7 +64,7 @@ export default function MyContractDetailPage({ params }: { params: { id: string 
               </p>
               <h3>2. Payment Terms</h3>
               <p>
-                The total contract value is <strong>${contract.value.toLocaleString()}</strong>. Payment will be made in
+                The total contract value is <strong>${contract.value?.toLocaleString() ?? "0"}</strong>. Payment will be made in
                 three installments...
               </p>
             </CardContent>

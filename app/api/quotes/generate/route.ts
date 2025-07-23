@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     }
 
     const enhancedLineItems: EnhancedLineItem[] = lineItems.map((item: any) => {
+      const now = new Date().toISOString()
       const mockTemplate = {
         id: `template-${Math.random()}`,
         name: item.description,
@@ -31,6 +32,8 @@ export async function POST(request: Request) {
         materialCost: Math.floor(Math.random() * 100) + 25,
         markup: 15,
         isActive: true,
+        createdAt: now,
+        updatedAt: now,
       }
       return createEnhancedLineItem(mockTemplate, item.quantity, pricingData.labor_rates)
     })

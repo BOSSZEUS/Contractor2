@@ -22,7 +22,9 @@ export class StorageUtils {
       const snapshot = await uploadBytes(storageRef, file)
       const downloadURL = await getDownloadURL(snapshot.ref)
 
-      console.log("File uploaded successfully:", downloadURL)
+      if (process.env.NODE_ENV === "development") {
+        console.log("File uploaded successfully:", downloadURL)
+      }
       return downloadURL
     } catch (error) {
       console.error("Error uploading file:", error)
@@ -98,7 +100,9 @@ export class StorageUtils {
 
       const storageRef = ref(storage, path)
       await deleteObject(storageRef)
-      console.log("File deleted successfully:", path)
+      if (process.env.NODE_ENV === "development") {
+        console.log("File deleted successfully:", path)
+      }
       return true
     } catch (error) {
       console.error("Error deleting file:", error)
