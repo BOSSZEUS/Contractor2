@@ -4,7 +4,8 @@ import type React from "react"
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { useAuth } from "@/contexts/auth-context"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { clientAuth } from "@/lib/firebase"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -19,7 +20,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const { signIn } = useAuth()
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -28,7 +28,23 @@ export default function LoginPage() {
     setError("")
 
     try {
-      await signIn(email, password)
+      if (!clientAuth) {
+        throw new Error("Firebase not initialized")
+      }
+
+      const result = await signInWithEmailAndPassword(clientAuth, email, password)
+      const idToken = await result.user.getIdToken()
+
+      const sessionRes = await fetch("/api/session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      })
+
+      if (!sessionRes.ok) {
+        throw new Error("Failed to create session")
+      }
+
       if (process.env.NODE_ENV === "development") {
         console.log("Login successful, redirecting to dashboard...")
       }

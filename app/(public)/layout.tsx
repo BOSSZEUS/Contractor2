@@ -2,12 +2,15 @@ import type React from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { getUserFromSession } from "@/lib/getUserFromSession"
 
-export default function PublicLayout({
+export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const user = await getUserFromSession()
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -16,12 +19,20 @@ export default function PublicLayout({
             ContractShield
           </Link>
           <nav className="flex items-center gap-4">
-            <Button asChild variant="ghost">
-              <Link href="/login">Log in</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/register">Sign up</Link>
-            </Button>
+            {user ? (
+              <Button asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+            ) : (
+              <>
+                <Button asChild variant="ghost">
+                  <Link href="/login">Log in</Link>
+                </Button>
+                <Button asChild>
+                  <Link href="/register">Sign up</Link>
+                </Button>
+              </>
+            )}
             <ThemeToggle />
           </nav>
         </div>
