@@ -19,6 +19,14 @@ import {
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { FeatureLimit } from "@/components/feature-limit"
 import { PlanBadge } from "@/components/plan-badge"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { ChevronLeft, Plus, FileText, Clock, DollarSign, CheckCircle, XCircle, AlertCircle } from "lucide-react"
 import { useRouter } from "next/navigation"
 
@@ -144,6 +152,17 @@ export default function ChangeOrdersPage({ params }: { params: { id: string } })
 
   return (
     <div className="space-y-6">
+      <Breadcrumb>
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/projects">Projects</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Change Orders</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="outline" size="icon" onClick={() => router.push(`/projects/${projectId}`)}>

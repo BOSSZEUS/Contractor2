@@ -138,7 +138,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
         if (process.env.NODE_ENV === "development") {
           console.log("Project not found, redirecting to dashboard")
         }
-        router.push("/dashboard/contractor/projects")
+        router.push("/contractor/projects")
       }
       setLoading(false)
     } else {
@@ -273,7 +273,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
           <p className="text-muted-foreground mb-4">
             The project you're looking for doesn't exist or you don't have access to it.
           </p>
-          <Button onClick={() => router.push("/dashboard/contractor/projects")}>
+          <Button onClick={() => router.push("/contractor/projects")}>
             <ChevronLeft className="h-4 w-4 mr-2" />
             Back to Projects
           </Button>
@@ -285,7 +285,7 @@ export default function ProjectDetailsPage({ params }: { params: { id: string } 
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">
-        <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/contractor/projects")}>
+        <Button variant="outline" size="icon" onClick={() => router.push("/contractor/projects")}>
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <h1 className="text-3xl font-bold tracking-tight">Project Management</h1>
