@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import type { NextRequest } from "next/server"
+import { supabase } from "@/lib/supabase/middleware"
 
 export async function middleware(request: NextRequest) {
 
@@ -14,6 +15,15 @@ export async function middleware(request: NextRequest) {
 
   const sessionCookie = request.cookies.get("__session")
   if (!sessionCookie) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser(sessionCookie.value)
+
+  if (error || !user) {
     return NextResponse.redirect(new URL("/login", request.url))
   }
 
