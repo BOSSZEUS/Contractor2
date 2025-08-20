@@ -1,13 +1,15 @@
 import { createServerClient } from "@supabase/supabase-js"
 
-const supabaseUrl = process.env.SUPABASE_URL
-if (!supabaseUrl) {
-  throw new Error("Missing environment variable: SUPABASE_URL")
-}
+export function createSupabaseServerClient() {
+  const supabaseUrl = process.env.SUPABASE_URL
+  if (!supabaseUrl || !supabaseUrl.startsWith("https://")) {
+    throw new Error("SUPABASE_URL must start with https://")
+  }
 
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-if (!supabaseServiceRoleKey) {
-  throw new Error("Missing environment variable: SUPABASE_SERVICE_ROLE_KEY")
-}
+  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseServiceRoleKey || !supabaseServiceRoleKey.startsWith("https://")) {
+    throw new Error("SUPABASE_SERVICE_ROLE_KEY must start with https://")
+  }
 
-export const supabase = createServerClient(supabaseUrl, supabaseServiceRoleKey)
+  return createServerClient(supabaseUrl, supabaseServiceRoleKey)
+}
